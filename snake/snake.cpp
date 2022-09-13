@@ -547,7 +547,7 @@ void resetGame()
 	g.gameover  = 0;
 	g.winner    = 0;
 }
-int name();
+extern int my_name();
 int checkKeys(XEvent *e)
 {
 	static int shift=0;
@@ -568,13 +568,15 @@ int checkKeys(XEvent *e)
 		case XK_r:
 			resetGame();
 			break;
+		case XK_g:
+			my_name();
+			break;
 		case XK_equal:
 			g.snake.delay *= 0.9;
 			if (g.snake.delay < 0.001)
 				g.snake.delay = 0.001;
 			break;
 		case XK_minus:
-			name();
 			g.snake.delay *= (1.0 / 0.9);
 			break;
 		case XK_Left:
