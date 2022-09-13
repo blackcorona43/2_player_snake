@@ -74,7 +74,7 @@ typedef struct t_snake {
 	int direction;
 	double timer;
 	double delay;
-} Snake;
+} Snake, Snake2;
 //
 typedef struct t_rat {
 	int status;
@@ -156,6 +156,7 @@ struct Global {
 	int xres, yres;
 	Grid grid[MAX_GRID][MAX_GRID];
 	Snake snake;
+	Snake snake2;
 	Rat rat;
 	int gridDim;
 	int boardDim;
@@ -473,6 +474,14 @@ void initSnake()
 	}
 	g.snake.direction = DIRECTION_RIGHT;
 	//snake.timer = glfwGetTime() + 0.5;
+	g.snake2.status = 5;
+	g.snake2.delay = .15;
+	g.snake2.length = rand() % 4 + 3;
+	for (i=0; i<g.snake2.length; i++) {
+		g.snake2.pos[i][0] = 10;
+		g.snake2.pos[i][1] = 10;
+	}
+	g.snake2.direction = DIRECTION_LEFT;
 }
 
 void initRat()
@@ -889,6 +898,8 @@ void render(void)
 	float rgb[3];
 	rgb[0] = -0.9 / (float)g.snake.length;
 	rgb[2] = -0.45 / (float)g.snake.length;
+	rgb[0] = -0.9 / (float)g.snake2.length;
+	rgb[2] = -0.45 / (float)g.snake2.length;
 	glColor3fv(c);
 	//
 	glBegin(GL_QUADS);
@@ -902,12 +913,32 @@ void render(void)
 		c[2] +=	rgb[2];
 		glColor3fv(c);
 	}
+	for (i=0; i<g.snake2.length; i++) {
+		getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
+		glVertex2i(cent[0]-4, cent[1]-3);
+		glVertex2i(cent[0]-4, cent[1]+4);
+		glVertex2i(cent[0]+3, cent[1]+4);
+		glVertex2i(cent[0]+3, cent[1]-3);
+		c[0] +=	rgb[0];
+		c[2] +=	rgb[2];
+		glColor3fv(c);
+	}
+
 	glEnd();
 	#else //COLORFUL_SNAKE
 	glColor3f(0.1f, 0.8f, 0.1f);
 	glBegin(GL_QUADS);
 	for (i=0; i<g.snake.length; i++) {
 		getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
+		glVertex2i(cent[0]-4, cent[1]-3);
+		glVertex2i(cent[0]-4, cent[1]+4);
+		glVertex2i(cent[0]+3, cent[1]+4);
+		glVertex2i(cent[0]+3, cent[1]-3);
+		glColor3f(0.0f, 0.6f, 0.0f);
+	}
+
+	for (i=0; i<g.snake2.length; i++) {
+		getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
 		glVertex2i(cent[0]-4, cent[1]-3);
 		glVertex2i(cent[0]-4, cent[1]+4);
 		glVertex2i(cent[0]+3, cent[1]+4);
