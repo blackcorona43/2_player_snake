@@ -557,6 +557,10 @@ void resetGame()
 	g.winner    = 0;
 }
 extern int my_name();
+extern int name();
+extern int name3();
+extern int show_my_name();
+extern int name5();
 int checkKeys(XEvent *e)
 {
 	static int shift=0;
@@ -578,6 +582,11 @@ int checkKeys(XEvent *e)
 			resetGame();
 			break;
 		case XK_g:
+			my_name();
+			name();
+			name3();
+			show_my_name();
+			name5();
 			break;
 		case XK_equal:
 			g.snake.delay *= 0.9;
