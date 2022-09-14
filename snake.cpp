@@ -578,7 +578,6 @@ int checkKeys(XEvent *e)
 			resetGame();
 			break;
 		case XK_g:
-			my_name();
 			break;
 		case XK_equal:
 			g.snake.delay *= 0.9;
