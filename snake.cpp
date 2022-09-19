@@ -316,7 +316,10 @@ int main(int argc, char *argv[])
 	    XEvent e = x11.getXNextEvent();
 	    x11.checkResize(&e);
 	    g.done = checkMouse(&e);
-	    g.done = checkKeys(&e);
+	    if (g.done == 1)
+		g.done = g.done;
+	    else	    
+		g.done = checkKeys(&e);
 	}
 	//
 	//Below is a process to apply physics at a consistent rate.
