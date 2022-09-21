@@ -1004,12 +1004,14 @@ void render(void)
     //
     //draw snake...
 #ifdef COLORFUL_SNAKE
-    float c[3]={1.0f,1.0,0.5};
+    float c[3]={1.0f,0.0,0.0};
+    float c2[3]={1.0f,0.0,1.0};
     float rgb[3];
+    float rgb2[3];
     rgb[0] = -0.9 / (float)g.snake.length;
     rgb[2] = -0.45 / (float)g.snake.length;
-    rgb[0] = -0.9 / (float)g.snake2.length;
-    rgb[2] = -0.45 / (float)g.snake2.length;
+    rgb2[0] = -0.9 / (float)g.snake2.length;
+    rgb2[2] = -0.45 / (float)g.snake2.length;
     glColor3fv(c);
     //
     glBegin(GL_QUADS);
@@ -1030,14 +1032,14 @@ void render(void)
 	glVertex2i(cent[0]-4, cent[1]+4);
 	glVertex2i(cent[0]+3, cent[1]+4);
 	glVertex2i(cent[0]+3, cent[1]-3);
-	c[0] +=	rgb[0];
-	c[2] +=	rgb[2];
-	glColor3fv(c);
+	c2[0] +=	rgb2[0];
+	c2[2] +=	rgb2[2];
+	glColor3fv(c2);
     }
 
     glEnd();
 #else //COLORFUL_SNAKE
-    glColor3f(0.1f, 0.8f, 0.1f);
+    glColor3f(1.0f, 0.0f, 0.0f);
     glBegin(GL_QUADS);
     for (i=0; i<g.snake.length; i++) {
 	getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
