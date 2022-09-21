@@ -150,6 +150,7 @@ class Image {
 	}
 };
 Image img[1] = {"./images/dirt.gif" };
+Image img2[1] = {"./images/credits.gif" };
 
 
 struct Global {
@@ -163,7 +164,10 @@ struct Global {
     int gameover;
     int winner;
     int done = 0;
+    int showcredits = 0;
+    int count = 0;
     Image *marbleImage;
+    Image *creditsImage;
     GLuint marbleTexture;
     Button button[MAXBUTTONS];
     int nbuttons;
@@ -178,6 +182,7 @@ struct Global {
 	winner = 0;
 	nbuttons = 0;
 	marbleImage=NULL;
+	creditsImage=NULL;
     }
 } g;
 
@@ -315,11 +320,11 @@ int main(int argc, char *argv[])
 	while (x11.getXPending()) {
 	    XEvent e = x11.getXNextEvent();
 	    x11.checkResize(&e);
-	    g.done = checkMouse(&e);
-	    if (g.done == 1)
-		g.done = g.done;
-	    else	    
-		g.done = checkKeys(&e);
+		g.done = checkMouse(&e);
+		if (g.done == 1)
+		    g.done = g.done;
+		else	    
+		    g.done = checkKeys(&e);
 	}
 	//
 	//Below is a process to apply physics at a consistent rate.
@@ -482,17 +487,17 @@ void initSnake()
     g.snake2.delay = .15;
     g.snake2.length = rand() % 4 + 3;
     for (i=0; i<g.snake2.length; i++) {
-	g.snake2.pos[i][0] = 2;
-	g.snake2.pos[i][1] = 2;
+	g.snake2.pos[i][0] = 38;
+	g.snake2.pos[i][1] = 38;
     }
-    g.snake2.direction = DIRECTION_RIGHT;
+    g.snake2.direction = DIRECTION_LEFT;
 }
 
 void initRat()
 {
     g.rat.status = 1;
-    g.rat.pos[0] = 25;
-    g.rat.pos[1] = 25;
+    g.rat.pos[0] = 20;
+    g.rat.pos[1] = 20;
 }
 
 void init()
@@ -588,12 +593,16 @@ int checkKeys(XEvent *e)
 	case XK_q:
 	    g.done = 1;
 	    return 1;
-	case XK_g:
-	    my_name();
-	    name();
-	    name3();
-	    show_my_name();
-	    name5();
+	case XK_n:
+	    g.showcredits = 0; 
+	    break;
+	case XK_c:
+		g.showcredits = 1;
+		my_name();
+		name();
+		name3();
+		show_my_name();
+		name5();
 	    break;
 	case XK_equal:
 	    g.snake.delay *= 0.9;
@@ -603,29 +612,29 @@ int checkKeys(XEvent *e)
 	case XK_minus:
 	    g.snake.delay *= (1.0 / 0.9);
 	    break;
-	case XK_Left:
+	case XK_a:
 	    g.snake.direction = DIRECTION_LEFT;
 	    break;
-	case XK_Right:
+	case XK_d:
 	    g.snake.direction = DIRECTION_RIGHT;
 	    break;
-	case XK_Up:
+	case XK_w:
 	    g.snake.direction = DIRECTION_UP;
 	    break;
-	case XK_Down:
+	case XK_s:
 	    g.snake.direction = DIRECTION_DOWN;
 	    break;
-        // 2ND Snake Buttons
-	case XK_a:
+	    // 2ND Snake Buttons
+	case XK_Left:
 	    g.snake2.direction = DIRECTION_LEFT;
 	    break;
-	case XK_d:
+	case XK_Right:
 	    g.snake2.direction = DIRECTION_RIGHT;
 	    break;
-	case XK_w:
+	case XK_Up:
 	    g.snake2.direction = DIRECTION_UP;
 	    break;
-	case XK_s:
+	case XK_Down:
 	    g.snake2.direction = DIRECTION_DOWN;
 	    break;
     }
@@ -734,7 +743,7 @@ void physics(void)
     if (timeSpan < g.snake.delay)
 	return;
     if (timeSpan < g.snake2.delay)
-    return;
+	return;
     timeCopy(&snakeTime, &tt);
     //
     playSound(g.alSourceDrip);
@@ -747,7 +756,7 @@ void physics(void)
     headpos[1] = g.snake.pos[0][1];
     headpos2[0] = g.snake2.pos[0][0];
     headpos2[1] = g.snake2.pos[0][1];
-    
+
     //snake.direction:
     //0=down
     //1=left
@@ -912,190 +921,206 @@ void physics(void)
 	return;
     }
 }
-
 void render(void)
 {
-    int i,j;
-    Rect r;
-    //--------------------------------------------------------
-    //This code is repeated several times in this program, so
-    //it can be made more generic and cleaner with some work.
-    int b2 = g.boardDim/2;
-    int s0 = g.xres>>1;
-    int s1 = g.yres>>1;
-    //center of a grid
-    int cent[2];
-    //bq is the width of one grid section
-    //--------------------------------------------------------
-    //start the opengl stuff
-    //set the viewing area on screen
-    glViewport(0, 0, g.xres, g.yres);
-    //clear color buffer
-    glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    //init matrices
-    glMatrixMode (GL_PROJECTION); glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-    //this sets to 2D mode (no perspective)
-    glOrtho(0, g.xres, 0, g.yres, -1, 1);
-    //
-    //screen background
-    glColor3f(0.5f, 0.5f, 0.5f);
-    glBindTexture(GL_TEXTURE_2D, g.marbleTexture);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      0);
-    glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      g.yres);
-    glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, g.yres);
-    glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, 0);
-    glEnd();
-    glBindTexture(GL_TEXTURE_2D, 0);
-    //
-    //draw all buttons
-    for (i=0; i<g.nbuttons; i++) {
-	if (g.button[i].over) {
-	    int w=2;
-	    glColor3f(1.0f, 1.0f, 0.0f);
-	    //draw a highlight around button
-	    glLineWidth(3);
-	    glBegin(GL_LINE_LOOP);
-	    glVertex2i(g.button[i].r.left-w,  g.button[i].r.bot-w);
-	    glVertex2i(g.button[i].r.left-w,  g.button[i].r.top+w);
-	    glVertex2i(g.button[i].r.right+w, g.button[i].r.top+w);
-	    glVertex2i(g.button[i].r.right+w, g.button[i].r.bot-w);
-	    glVertex2i(g.button[i].r.left-w,  g.button[i].r.bot-w);
-	    glEnd();
-	    glLineWidth(1);
-	}
-	if (g.button[i].down) {
-	    glColor3fv(g.button[i].dcolor);
-	} else {
-	    glColor3fv(g.button[i].color);
-	}
+    if(g.showcredits == 1)
+    {
+	static float w = 400.0f;
+	static float pos[2] = {0.0f+w, g.yres/2.0f};
+	glClear(GL_COLOR_BUFFER_BIT);
+	glPushMatrix();
+	glColor3ub(150,160,220);
+	glTranslatef(pos[0], pos[1], 0.0f);
 	glBegin(GL_QUADS);
-	glVertex2i(g.button[i].r.left,  g.button[i].r.bot);
-	glVertex2i(g.button[i].r.left,  g.button[i].r.top);
-	glVertex2i(g.button[i].r.right, g.button[i].r.top);
-	glVertex2i(g.button[i].r.right, g.button[i].r.bot);
+	glVertex2f(-w,-w);
+	glVertex2f(-w, w);
+	glVertex2f(w,w);
+	glVertex2f(w,-w);
 	glEnd();
-	r.left = g.button[i].r.centerx;
-	r.bot  = g.button[i].r.centery-8;
-	r.center = 1;
-	if (g.button[i].down) {
-	    ggprint16(&r, 0, g.button[i].text_color, "Pressed!");
-	} else {
-	    ggprint16(&r, 0, g.button[i].text_color, g.button[i].text);
+	glPopMatrix();
+    }
+    else {
+
+	int i,j;
+	Rect r;
+	//--------------------------------------------------------
+	//This code is repeated several times in this program, so
+	//it can be made more generic and cleaner with some work.
+	int b2 = g.boardDim/2;
+	int s0 = g.xres>>1;
+	int s1 = g.yres>>1;
+	//center of a grid
+	int cent[2];
+	//bq is the width of one grid section
+	//--------------------------------------------------------
+	//start the opengl stuff
+	//set the viewing area on screen
+	glViewport(0, 0, g.xres, g.yres);
+	//clear color buffer
+	glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	//init matrices
+	glMatrixMode (GL_PROJECTION); glLoadIdentity();
+	glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+	//this sets to 2D mode (no perspective)
+	glOrtho(0, g.xres, 0, g.yres, -1, 1);
+	//
+	//screen background
+	glColor3f(0.5f, 0.5f, 0.5f);
+	glBindTexture(GL_TEXTURE_2D, g.marbleTexture);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      0);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      g.yres);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, g.yres);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, 0);
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	//
+	//draw all buttons
+	for (i=0; i<g.nbuttons; i++) {
+	    if (g.button[i].over) {
+		int w=2;
+		glColor3f(1.0f, 1.0f, 0.0f);
+		//draw a highlight around button
+		glLineWidth(3);
+		glBegin(GL_LINE_LOOP);
+		glVertex2i(g.button[i].r.left-w,  g.button[i].r.bot-w);
+		glVertex2i(g.button[i].r.left-w,  g.button[i].r.top+w);
+		glVertex2i(g.button[i].r.right+w, g.button[i].r.top+w);
+		glVertex2i(g.button[i].r.right+w, g.button[i].r.bot-w);
+		glVertex2i(g.button[i].r.left-w,  g.button[i].r.bot-w);
+		glEnd();
+		glLineWidth(1);
+	    }
+	    if (g.button[i].down) {
+		glColor3fv(g.button[i].dcolor);
+	    } else {
+		glColor3fv(g.button[i].color);
+	    }
+	    glBegin(GL_QUADS);
+	    glVertex2i(g.button[i].r.left,  g.button[i].r.bot);
+	    glVertex2i(g.button[i].r.left,  g.button[i].r.top);
+	    glVertex2i(g.button[i].r.right, g.button[i].r.top);
+	    glVertex2i(g.button[i].r.right, g.button[i].r.bot);
+	    glEnd();
+	    r.left = g.button[i].r.centerx;
+	    r.bot  = g.button[i].r.centery-8;
+	    r.center = 1;
+	    if (g.button[i].down) {
+		ggprint16(&r, 0, g.button[i].text_color, "Pressed!");
+	    } else {
+		ggprint16(&r, 0, g.button[i].text_color, g.button[i].text);
+	    }
 	}
-    }
-    //draw the main game board in middle of screen
-    glColor3f(0.6f, 0.5f, 0.2f);
-    glBegin(GL_QUADS);
-    glVertex2i(s0-b2, s1-b2);
-    glVertex2i(s0-b2, s1+b2);
-    glVertex2i(s0+b2, s1+b2);
-    glVertex2i(s0+b2, s1-b2);
-    glEnd();
-    //
-    //grid lines...
-    int x0 = s0-b2;
-    int x1 = s0+b2;
-    int y0 = s1-b2;
-    int y1 = s1+b2;
-    glColor3f(0.1f, 0.1f, 0.1f);
-    glBegin(GL_LINES);
-    for (i=1; i<g.gridDim; i++) {
-	y0 += 10;
-	glVertex2i(x0,y0);
-	glVertex2i(x1,y0);
-    }
-    x0 = s0-b2;
-    y0 = s1-b2;
-    y1 = s1+b2;
-    for (j=1; j<g.gridDim; j++) {
-	x0 += 10;
-	glVertex2i(x0,y0);
-	glVertex2i(x0,y1);
-    }
-    glEnd();
-    //
+	//draw the main game board in middle of screen
+	glColor3f(0.6f, 0.5f, 0.2f);
+	glBegin(GL_QUADS);
+	glVertex2i(s0-b2, s1-b2);
+	glVertex2i(s0-b2, s1+b2);
+	glVertex2i(s0+b2, s1+b2);
+	glVertex2i(s0+b2, s1-b2);
+	glEnd();
+	//
+	//grid lines...
+	int x0 = s0-b2;
+	int x1 = s0+b2;
+	int y0 = s1-b2;
+	int y1 = s1+b2;
+	glColor3f(0.1f, 0.1f, 0.1f);
+	glBegin(GL_LINES);
+	for (i=1; i<g.gridDim; i++) {
+	    y0 += 10;
+	    glVertex2i(x0,y0);
+	    glVertex2i(x1,y0);
+	}
+	x0 = s0-b2;
+	y0 = s1-b2;
+	y1 = s1+b2;
+	for (j=1; j<g.gridDim; j++) {
+	    x0 += 10;
+	    glVertex2i(x0,y0);
+	    glVertex2i(x0,y1);
+	}
+	glEnd();
+	//
 #define COLORFUL_SNAKE
-    //
-    //draw snake...
+	//
+	//draw snake...
 #ifdef COLORFUL_SNAKE
-    float c[3]={1.0f,0.0,0.0};
-    float c2[3]={1.0f,0.0,1.0};
-    float rgb[3];
-    float rgb2[3];
-    rgb[0] = -0.9 / (float)g.snake.length;
-    rgb[2] = -0.45 / (float)g.snake.length;
-    rgb2[0] = -0.9 / (float)g.snake2.length;
-    rgb2[2] = -0.45 / (float)g.snake2.length;
-    glColor3fv(c);
-    //
-    glBegin(GL_QUADS);
-    for (i=0; i<g.snake.length; i++) {
-	getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
-	glVertex2i(cent[0]-4, cent[1]-3);
-	glVertex2i(cent[0]-4, cent[1]+4);
-	glVertex2i(cent[0]+3, cent[1]+4);
-	glVertex2i(cent[0]+3, cent[1]-3);
-	c[0] +=	rgb[0];
-	c[2] +=	rgb[2];
+	float c[3]={1.0f,0.0,0.0};
+	float c2[3]={1.0f,0.0,1.0};
+	float rgb[3];
+	float rgb2[3];
+	rgb[0] = -0.9 / (float)g.snake.length;
+	rgb[2] = -0.45 / (float)g.snake.length;
+	rgb2[0] = -0.9 / (float)g.snake2.length;
+	rgb2[2] = -0.45 / (float)g.snake2.length;
 	glColor3fv(c);
-    }
-    //2ND Snake
-    for (i=0; i<g.snake2.length; i++) {
-	getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
-	glVertex2i(cent[0]-4, cent[1]-3);
-	glVertex2i(cent[0]-4, cent[1]+4);
-	glVertex2i(cent[0]+3, cent[1]+4);
-	glVertex2i(cent[0]+3, cent[1]-3);
-	c2[0] +=	rgb2[0];
-	c2[2] +=	rgb2[2];
-	glColor3fv(c2);
-    }
+	//
+	glBegin(GL_QUADS);
+	for (i=0; i<g.snake.length; i++) {
+	    getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
+	    glVertex2i(cent[0]-4, cent[1]-3);
+	    glVertex2i(cent[0]-4, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]-3);
+	    c[0] +=	rgb[0];
+	    c[2] +=	rgb[2];
+	    glColor3fv(c);
+	}
+	//2ND Snake
+	for (i=0; i<g.snake2.length; i++) {
+	    getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
+	    glVertex2i(cent[0]-4, cent[1]-3);
+	    glVertex2i(cent[0]-4, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]-3);
+	    c2[0] +=	rgb2[0];
+	    c2[2] +=	rgb2[2];
+	    glColor3fv(c2);
+	}
 
-    glEnd();
+	glEnd();
 #else //COLORFUL_SNAKE
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glBegin(GL_QUADS);
-    for (i=0; i<g.snake.length; i++) {
-	getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
-	glVertex2i(cent[0]-4, cent[1]-3);
-	glVertex2i(cent[0]-4, cent[1]+4);
-	glVertex2i(cent[0]+3, cent[1]+4);
-	glVertex2i(cent[0]+3, cent[1]-3);
-	glColor3f(0.0f, 0.6f, 0.0f);
-    }
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glBegin(GL_QUADS);
+	for (i=0; i<g.snake.length; i++) {
+	    getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
+	    glVertex2i(cent[0]-4, cent[1]-3);
+	    glVertex2i(cent[0]-4, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]-3);
+	    glColor3f(0.0f, 0.6f, 0.0f);
+	}
 
-    for (i=0; i<g.snake2.length; i++) {
-	getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
-	glVertex2i(cent[0]-4, cent[1]-3);
-	glVertex2i(cent[0]-4, cent[1]+4);
-	glVertex2i(cent[0]+3, cent[1]+4);
-	glVertex2i(cent[0]+3, cent[1]-3);
-	glColor3f(0.0f, 0.6f, 0.0f);
-    }
-    glEnd();
+	for (i=0; i<g.snake2.length; i++) {
+	    getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
+	    glVertex2i(cent[0]-4, cent[1]-3);
+	    glVertex2i(cent[0]-4, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]-3);
+	    glColor3f(0.0f, 0.6f, 0.0f);
+	}
+	glEnd();
 #endif //COLORFUL_SNAKE
        //
        //
        //draw rat...
-    getGridCenter(g.rat.pos[1],g.rat.pos[0],cent);
-    glColor3f(0.1, 0.1f, 0.0f);
-    glBegin(GL_QUADS);
-    glVertex2i(cent[0]-4, cent[1]-3);
-    glVertex2i(cent[0]-4, cent[1]+4);
-    glVertex2i(cent[0]+3, cent[1]+4);
-    glVertex2i(cent[0]+3, cent[1]-3);
-    glEnd();
-    //
-    //
-    r.left   = g.xres/2;
-    r.bot    = g.yres-100;
-    r.center = 1;
-    ggprint16(&r, 16, 0x00ffffff, "Snake");
+	getGridCenter(g.rat.pos[1],g.rat.pos[0],cent);
+	glColor3f(0.1, 0.1f, 0.0f);
+	glBegin(GL_QUADS);
+	glVertex2i(cent[0]-4, cent[1]-3);
+	glVertex2i(cent[0]-4, cent[1]+4);
+	glVertex2i(cent[0]+3, cent[1]+4);
+	glVertex2i(cent[0]+3, cent[1]-3);
+	glEnd();
+	//
+	//
+	r.left   = g.xres/2;
+	r.bot    = g.yres-100;
+	r.center = 1;
+	ggprint16(&r, 16, 0x00ffffff, "Snake");
+
+    }
+
 }
-
-
-
-
