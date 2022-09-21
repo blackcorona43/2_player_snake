@@ -799,6 +799,23 @@ void physics(void)
 	}
     }
     //
+    //check for snake crossing snake2...
+    for (i=1; i<g.snake2.length; i++) {
+	if (g.snake2.pos[i][0] == g.snake.pos[0][0] &&
+		g.snake2.pos[i][1] == g.snake.pos[0][1]) {
+	    g.gameover=1;
+	    return;
+	}
+    }
+    //check for snake2 crossing snake...
+    for (i=1; i<g.snake.length; i++) {
+	if (g.snake.pos[i][0] == g.snake2.pos[0][0] &&
+		g.snake.pos[i][1] == g.snake2.pos[0][1]) {
+	    g.gameover=1;
+	    return;
+	}
+    }
+    //
     newpos[0] = headpos[0];
     newpos[1] = headpos[1];
     //2nd Snake Head Position
