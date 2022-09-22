@@ -320,11 +320,11 @@ int main(int argc, char *argv[])
 	while (x11.getXPending()) {
 	    XEvent e = x11.getXNextEvent();
 	    x11.checkResize(&e);
-		g.done = checkMouse(&e);
-		if (g.done == 1)
-		    g.done = g.done;
-		else	    
-		    g.done = checkKeys(&e);
+	    g.done = checkMouse(&e);
+	    if (g.done == 1)
+		g.done = g.done;
+	    else	    
+		g.done = checkKeys(&e);
 	}
 	//
 	//Below is a process to apply physics at a consistent rate.
@@ -476,7 +476,7 @@ void initSnake()
     int i;
     g.snake.status = 1;
     g.snake.delay = .15;
-    g.snake.length = rand() % 4 + 3;
+    g.snake.length = 5;
     for (i=0; i<g.snake.length; i++) {
 	g.snake.pos[i][0] = 2;
 	g.snake.pos[i][1] = 2;
@@ -485,7 +485,7 @@ void initSnake()
     //snake.timer = glfwGetTime() + 0.5;
     g.snake2.status = 1;
     g.snake2.delay = .15;
-    g.snake2.length = rand() % 4 + 3;
+    g.snake2.length = 5;
     for (i=0; i<g.snake2.length; i++) {
 	g.snake2.pos[i][0] = 38;
 	g.snake2.pos[i][1] = 38;
@@ -545,7 +545,7 @@ void init()
 	    g.button[g.nbuttons].r.right) / 2;
     g.button[g.nbuttons].r.centery = (g.button[g.nbuttons].r.bot +
 	    g.button[g.nbuttons].r.top) / 2;
-    strcpy(g.button[g.nbuttons].text, " Press q to quit");
+    strcpy(g.button[g.nbuttons].text, " Esc to Quit");
     g.button[g.nbuttons].down = 0;
     g.button[g.nbuttons].click = 0;
     g.button[g.nbuttons].color[0] = 0.3f;
@@ -590,19 +590,21 @@ int checkKeys(XEvent *e)
 	case XK_r:
 	    resetGame();
 	    break;
-	case XK_q:
+	case XK_Escape:// Escape to quit game
 	    g.done = 1;
 	    return 1;
-	case XK_n:
-	    g.showcredits = 0; 
-	    break;
-	case XK_c:
+	case XK_c:// open/close credits page
+	    g.count++;
+	    if (g.count%2==1) {
 		g.showcredits = 1;
 		my_name();
 		name();
 		name3();
 		show_my_name();
 		name5();
+	    }
+	    else
+	    	g.showcredits = 0;
 	    break;
 	case XK_equal:
 	    g.snake.delay *= 0.9;
@@ -809,7 +811,7 @@ void physics(void)
     }
     //
     //check for snake crossing snake2...
-    for (i=1; i<g.snake2.length; i++) {
+    for (i=0; i<g.snake2.length; i++) {
 	if (g.snake2.pos[i][0] == g.snake.pos[0][0] &&
 		g.snake2.pos[i][1] == g.snake.pos[0][1]) {
 	    g.gameover=1;
@@ -817,7 +819,7 @@ void physics(void)
 	}
     }
     //check for snake2 crossing snake...
-    for (i=1; i<g.snake.length; i++) {
+    for (i=0; i<g.snake.length; i++) {
 	if (g.snake.pos[i][0] == g.snake2.pos[0][0] &&
 		g.snake.pos[i][1] == g.snake2.pos[0][1]) {
 	    g.gameover=1;
@@ -932,10 +934,10 @@ void render(void)
 	glColor3ub(150,160,220);
 	glTranslatef(pos[0], pos[1], 0.0f);
 	glBegin(GL_QUADS);
-	glVertex2f(-w,-w);
-	glVertex2f(-w, w);
-	glVertex2f(w,w);
-	glVertex2f(w,-w);
+	glVertex2f(-g.xres,-g.yres);
+	glVertex2f(-g.xres, g.yres);
+	glVertex2f(g.xres,g.yres);
+	glVertex2f(g.xres,-g.yres);
 	glEnd();
 	glPopMatrix();
     }
