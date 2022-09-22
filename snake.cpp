@@ -165,6 +165,8 @@ struct Global {
     int winner;
     int done = 0;
     int showcredits = 0;
+    int p1_points = 0;
+    int p2_points = 0;
     int count = 0;
     Image *marbleImage;
     Image *creditsImage;
@@ -787,6 +789,7 @@ void physics(void)
 	printf("-----------------------------\n");
 	printf("Snake 1 went off the board!\n");
 	printf("Snake 2 Wins!\n");
+    printf("Player 2 has %d points\n", ++g.p2_points); 
 	printf("-----------------------------\n");
 	return;
     }
@@ -800,6 +803,7 @@ void physics(void)
 	printf("-----------------------------\n");
 	printf("Snake 2 went off the board!\n");
 	printf("Snake 1 Wins!\n");
+    printf("Player 1 has %d points\n", ++g.p1_points); 
 	printf("-----------------------------\n");
 	return;
     }
@@ -812,6 +816,7 @@ void physics(void)
 	    printf("-----------------------------\n");
 	    printf("Snake 1 ate itself!\n");
 	    printf("Snake 2 Wins!\n");
+        printf("Player 2 has %d points\n", ++g.p2_points); 
 	    printf("-----------------------------\n");
 	    return;
 	}
@@ -825,20 +830,35 @@ void physics(void)
 	    printf("-----------------------------\n");
 	    printf("Snake 2 ate itself!\n");
 	    printf("Snake 1 Wins!\n");
+        printf("Player 1 has %d points\n", ++g.p1_points); 
 	    printf("-----------------------------\n");
 	    return;
 	}
     }
     //
+    // Check for Colliding Heads
+    if (g.snake2.pos[0][0] == g.snake.pos[0][0] &&
+        g.snake2.pos[0][1] == g.snake.pos[0][1]) {
+        g.gameover=1;
+        printf("\n");
+	    printf("-----------------------------\n");
+	    printf("Snake 1 and Snake 2 killed each other!\n");
+	    printf("It is a draw!!\n");
+        printf("Player 1 has %d points\n", g.p1_points); 
+        printf("Player 2 has %d points\n", g.p2_points); 
+	    printf("-----------------------------\n");
+	    return;
+    }
     //check for snake crossing snake2...
     for (i=0; i<g.snake2.length; i++) {
 	if (g.snake2.pos[i][0] == g.snake.pos[0][0] &&
-		g.snake2.pos[i][1] == g.snake.pos[0][1]) {
+        g.snake2.pos[i][1] == g.snake.pos[0][1]) {
 	    g.gameover=1;
 	    printf("\n");
 	    printf("-----------------------------\n");
 	    printf("Snake 2 killed Snake 1!\n");
 	    printf("Snake 2 Wins!\n");
+        printf("Player 2 has %d points\n", ++g.p2_points); 
 	    printf("-----------------------------\n");
 	    return;
 	}
@@ -852,6 +872,7 @@ void physics(void)
 	    printf("-----------------------------\n");
 	    printf("Snake 1 killed Snake 2!\n");
 	    printf("Snake 1 Wins!\n");
+        printf("Player 1 has %d points\n", ++g.p1_points); 
 	    printf("-----------------------------\n");
 	    return;
 	}
