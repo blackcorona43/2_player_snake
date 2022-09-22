@@ -522,7 +522,7 @@ void init()
 	(g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.right) / 2;
     g.button[g.nbuttons].r.centery =
 	(g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.top) / 2;
-    strcpy(g.button[g.nbuttons].text, "Reset");
+    strcpy(g.button[g.nbuttons].text, "r to Reset");
     g.button[g.nbuttons].down = 0;
     g.button[g.nbuttons].click = 0;
     g.button[g.nbuttons].color[0] = 0.4f;
@@ -604,7 +604,7 @@ int checkKeys(XEvent *e)
 		name5();
 	    }
 	    else
-	    	g.showcredits = 0;
+		g.showcredits = 0;
 	    break;
 	case XK_equal:
 	    g.snake.delay *= 0.9;
@@ -783,6 +783,11 @@ void physics(void)
 	    g.snake.pos[0][1] < 0 ||
 	    g.snake.pos[0][1] > g.gridDim-1) {
 	g.gameover=1;
+	printf("\n");
+	printf("-----------------------------\n");
+	printf("Snake 1 went off the board!\n");
+	printf("Snake 2 Wins!\n");
+	printf("-----------------------------\n");
 	return;
     }
     //check for snake2 off board...
@@ -791,6 +796,11 @@ void physics(void)
 	    g.snake2.pos[0][1] < 0 ||
 	    g.snake2.pos[0][1] > g.gridDim-1) {
 	g.gameover=1;
+	printf("\n");
+	printf("-----------------------------\n");
+	printf("Snake 2 went off the board!\n");
+	printf("Snake 1 Wins!\n");
+	printf("-----------------------------\n");
 	return;
     }
     //check for snake crossing itself...
@@ -798,6 +808,11 @@ void physics(void)
 	if (g.snake.pos[i][0] == g.snake.pos[0][0] &&
 		g.snake.pos[i][1] == g.snake.pos[0][1]) {
 	    g.gameover=1;
+	    printf("\n");
+	    printf("-----------------------------\n");
+	    printf("Snake 1 ate itself!\n");
+	    printf("Snake 2 Wins!\n");
+	    printf("-----------------------------\n");
 	    return;
 	}
     }
@@ -806,6 +821,11 @@ void physics(void)
 	if (g.snake2.pos[i][0] == g.snake2.pos[0][0] &&
 		g.snake2.pos[i][1] == g.snake2.pos[0][1]) {
 	    g.gameover=1;
+	    printf("\n");
+	    printf("-----------------------------\n");
+	    printf("Snake 2 ate itself!\n");
+	    printf("Snake 1 Wins!\n");
+	    printf("-----------------------------\n");
 	    return;
 	}
     }
@@ -815,6 +835,11 @@ void physics(void)
 	if (g.snake2.pos[i][0] == g.snake.pos[0][0] &&
 		g.snake2.pos[i][1] == g.snake.pos[0][1]) {
 	    g.gameover=1;
+	    printf("\n");
+	    printf("-----------------------------\n");
+	    printf("Snake 2 killed Snake 1!\n");
+	    printf("Snake 2 Wins!\n");
+	    printf("-----------------------------\n");
 	    return;
 	}
     }
@@ -823,6 +848,11 @@ void physics(void)
 	if (g.snake.pos[i][0] == g.snake2.pos[0][0] &&
 		g.snake.pos[i][1] == g.snake2.pos[0][1]) {
 	    g.gameover=1;
+	    printf("\n");
+	    printf("-----------------------------\n");
+	    printf("Snake 1 killed Snake 2!\n");
+	    printf("Snake 1 Wins!\n");
+	    printf("-----------------------------\n");
 	    return;
 	}
     }
@@ -844,7 +874,7 @@ void physics(void)
 	newpos[0] = oldpos[0];
 	newpos[1] = oldpos[1];
     }
-    // Snake 2
+    // Snake2
     for (i=1; i<g.snake2.length; i++) {
 	oldpos2[0] = g.snake2.pos[i][0];
 	oldpos2[1] = g.snake2.pos[i][1];
