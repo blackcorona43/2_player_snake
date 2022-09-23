@@ -1066,7 +1066,7 @@ void render(void)
 	    }
 	}
 	//draw the main game board in middle of screen
-	glColor3f(0.6f, 0.5f, 0.2f);
+	glColor3f(0.2f, 0.2f, 0.2f);
 	glBegin(GL_QUADS);
 	glVertex2i(s0-b2, s1-b2);
 	glVertex2i(s0-b2, s1+b2);
@@ -1101,7 +1101,7 @@ void render(void)
 	//draw snake...
 #ifdef COLORFUL_SNAKE
 	float c[3]={1.0f,0.0,0.0};
-	float c2[3]={1.0f,0.0,1.0};
+	float c2[3]={1.0f,0.1,1.0};
 	float rgb[3];
 	float rgb2[3];
 	rgb[0] = -0.9 / (float)g.snake.length;
@@ -1160,7 +1160,7 @@ void render(void)
        //
        //draw rat...
 	getGridCenter(g.rat.pos[1],g.rat.pos[0],cent);
-	glColor3f(0.1, 0.1f, 0.0f);
+	glColor3f(0.9, 0.9f, 0.9f);
 	glBegin(GL_QUADS);
 	glVertex2i(cent[0]-4, cent[1]-3);
 	glVertex2i(cent[0]-4, cent[1]+4);
