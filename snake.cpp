@@ -602,7 +602,7 @@ int checkKeys(XEvent *e)
 	    /*g.count++;
 	    if (g.count%2==1) {
 		g.showcredits = 1;
-		my_name();
+		//my_name();
 		name3();
 		show_my_name();
 		name5();
