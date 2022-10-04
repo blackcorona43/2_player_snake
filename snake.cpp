@@ -165,7 +165,7 @@ struct Global {
     int gameover;
     int winner;
     int done = 0;
-    int showcredits = 0;
+    unsigned int showcredits;
     int pauseState = 0;
     int p1_points = 0;
     int p2_points = 0;
@@ -185,6 +185,7 @@ struct Global {
 	gameover = 0;
 	winner = 0;
 	nbuttons = 0;
+	showcredits = 0;
 	marbleImage=NULL;
 	creditsImage=NULL;
     }
@@ -597,7 +598,8 @@ int checkKeys(XEvent *e)
 	    g.done = 1;
 	    return 1;
 	case XK_c:// open/close credits page
-	    g.count++;
+	    g.showcredits = manage_state_st(g.showcredits);
+	    /*g.count++;
 	    if (g.count%2==1) {
 		g.showcredits = 1;
 		my_name();
@@ -606,7 +608,7 @@ int checkKeys(XEvent *e)
 		name5();
 	    }
 	    else
-		g.showcredits = 0;
+		g.showcredits = 0;*/
 	    break;
 	case XK_equal:
 	    g.snake.delay *= 0.9;
@@ -986,7 +988,8 @@ void render(void)
 {
     if(g.showcredits == 1)
     {
-	static float w = 400.0f;
+	show_credits(g.xres, g.yres);
+	/*static float w = 400.0f;
 	static float pos[2] = {0.0f+w, g.yres/2.0f};
 	glClear(GL_COLOR_BUFFER_BIT);
 	glPushMatrix();
@@ -998,7 +1001,7 @@ void render(void)
 	glVertex2f(g.xres,g.yres);
 	glVertex2f(g.xres,-g.yres);
 	glEnd();
-	glPopMatrix();
+	glPopMatrix();*/
     }
     else {
 
