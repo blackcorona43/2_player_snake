@@ -4,7 +4,7 @@ LFLAGS = -lrt -lX11 -lGLU -lGL -lm #-lXrandr
 
 all: snake
 
-snake:  snake.cpp log.cpp gaponte.cpp dflores2.cpp rcorona.cpp stellez.cpp jsingh.cpp
+snake:  snake.cpp log.cpp gaponte.cpp dflores2.cpp rcorona.cpp stellez.cpp jsingh.cpp dflores2.h
 	g++ $(CFLAGS) snake.cpp log.cpp gaponte.cpp dflores2.cpp rcorona.cpp stellez.cpp jsingh.cpp libggfonts.a \
 	/usr/lib/x86_64-linux-gnu/libopenal.so \
 	/usr/lib/x86_64-linux-gnu/libalut.so \
