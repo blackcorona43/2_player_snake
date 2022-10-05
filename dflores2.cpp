@@ -23,3 +23,21 @@ void show_pause_screen(int xres, int yres)
         glEnd();
 	ggprint16(&r, 16, 0x00ffffff, "Paused");
 }
+
+
+void snakeHead (GLuint texture, int center[]) {
+   	glColor3f(0.5f, 0.5f, 0.5f);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f); glVertex2i(center[0] - 4,
+	      				    center[1] - 3);
+        glTexCoord2f(0.0f, 1.0f); glVertex2i(center[0] - 4,
+	      				    center[1] + 4);
+        glTexCoord2f(1.0f, 1.0f); glVertex2i(center[0] + 3,
+	      				    center[1] + 4);
+        glTexCoord2f(1.0f, 0.0f); glVertex2i(center[0] + 3,
+	      				    center[1] - 3);
+        glEnd();
+        glBindTexture(GL_TEXTURE_2D, 0);
+}
+ 

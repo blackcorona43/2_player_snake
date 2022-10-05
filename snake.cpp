@@ -155,7 +155,7 @@ class Image {
 };
 Image img[1] = {"./images/dirt.gif" };
 Image img2[1] = {"./images/credits.gif" };
-
+Image img3[1] = {"./images/rat1.gif" };
 
 struct Global {
     int xres, yres;
@@ -176,7 +176,9 @@ struct Global {
     int help = 0;
     Image *marbleImage;
     Image *creditsImage;
+    Image *snakeImage;
     GLuint marbleTexture;
+    GLuint snakeTexture;
     Button button[MAXBUTTONS];
     int nbuttons;
     //
@@ -192,6 +194,7 @@ struct Global {
 	showcredits = 0;
 	marbleImage=NULL;
 	creditsImage=NULL;
+	snakeImage=NULL;
     }
 } g;
 
@@ -478,6 +481,18 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
 	    g.marbleImage->width, g.marbleImage->height,
 	    0, GL_RGB, GL_UNSIGNED_BYTE, g.marbleImage->data);
+    
+    // Snake Head Image
+    g.snakeImage = &img3[0];
+    
+    //create opengl texture elements
+    glGenTextures(1, &g.snakeTexture);
+    glBindTexture(GL_TEXTURE_2D, g.snakeTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+	    g.snakeImage->width, g.snakeImage->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, g.snakeImage->data);
 }
 
 void initSnake()
@@ -1172,7 +1187,7 @@ void render(void)
        //
        //draw rat...
 	getGridCenter(g.rat.pos[1],g.rat.pos[0],cent);
-	glColor3f(0.9, 0.9f, 0.9f);
+	glColor3f(0.0, 0.0f, 0.0f);
 	glBegin(GL_QUADS);
 	glVertex2i(cent[0]-4, cent[1]-3);
 	glVertex2i(cent[0]-4, cent[1]+4);
@@ -1191,6 +1206,7 @@ void render(void)
 	h.center = 1;
         ggprint16(&h, 16, 0x00ffffff, "F1 for help");
 
+    	snakeHead(g.snakeTexture, cent);
     }
 
     if (g.pauseState) {
