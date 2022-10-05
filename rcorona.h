@@ -14,7 +14,8 @@ typedef struct a_snake
 }Ai_snake;
 
 
-extern unsigned int computer_snake(unsigned int state);
+extern unsigned int computer_snake(int check);
 
 
+extern unsigned int two_player(int check);
 

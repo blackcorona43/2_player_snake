@@ -3,9 +3,11 @@
 //
 #include <stdio.h>
 #define MAX_GRID 80
+#include <X11/Xlib.h>
+#include <GL/glx.h>
 
 
-/*typedef struct a_snake
+typedef struct a_snake
 {
     int status;
     int length;
@@ -13,11 +15,15 @@
     int direction;
     double timer;
     double delay;
-}Ai_snake;*/
+}Ai_snake;
 
-
-unsigned int computer_snake(unsigned int state)
+unsigned int computer_snake (int check)
 {
-    state = state ^ 1;
-    return state;
+    check ^= 1;
+    return check;
+}
+unsigned int two_player(int player)
+{
+    player = player ^ 1;
+    return player;
 }
