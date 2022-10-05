@@ -29,11 +29,13 @@ unsigned int manage_state_st(unsigned int s)
 void show_credits(int xres, int yres)
 {
     Rect r;
-    static float w = 400.0f;
+    int w = 10;
+    //static float w = 400.0f;
     static float pos[2] = {0.0f+w, yres/2.0f};
     glClear(GL_COLOR_BUFFER_BIT);
     glPushMatrix();
-    glColor3ub(150,160,220);
+    glColor3ub(217,70,40);
+    //glColor3ub(150,160,220);
     glTranslatef(pos[0], pos[1], 0.0f);
     glBegin(GL_QUADS);
     glVertex2f(xres,-yres);
@@ -42,10 +44,21 @@ void show_credits(int xres, int yres)
     glVertex2f(xres,-yres);
     glEnd();
     glPopMatrix();
+
     r.left   = xres/2;
-    r.bot    = yres-100;
+    //r.left   = xres/2;
+    //r.bot    = yres-100;
+    //r.bot    = yres-300; //centered
+    r.bot    = yres-200;
     r.center = 1;
     ggprint16(&r, 16, 0x00ffffff, "--Credits--");
+    ggprint16(&r, 16, 0x00ffffff, " ");
+    ggprint16(&r, 16, 0x00ffffff, "Project Made By:");
+    ggprint16(&r, 16, 0x00ffffff, " ");
+    ggprint16(&r, 16, 0x00ffffff, "Gabriel Aponte, Dominic Flores");
+    ggprint16(&r, 16, 0x00ffffff, " ");
+    ggprint16(&r, 16, 0x00ffffff, 
+	    "Ruben Corona, Samantha Tellez, and Jasdeep Singh");
 
 
 }
