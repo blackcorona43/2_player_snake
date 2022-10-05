@@ -173,6 +173,7 @@ struct Global {
     int p1_points = 0;
     int p2_points = 0;
     int count = 0;
+    int help = 0;
     Image *marbleImage;
     Image *creditsImage;
     GLuint marbleTexture;
@@ -573,6 +574,7 @@ void resetGame()
     g.gameover  = 0;
     g.winner    = 0;
 }
+extern int help_screen(int,int);
 extern int my_name();
 extern int name3();
 extern int show_my_name();
@@ -603,15 +605,15 @@ int checkKeys(XEvent *e)
 	case XK_c:// open/close credits page
 	    g.showcredits = manage_state_st(g.showcredits);
 	    /*g.count++;
-	    if (g.count%2==1) {
-		g.showcredits = 1;
-		//my_name();
-		name3();
-		show_my_name();
-		name5();
+	      if (g.count%2==1) {
+	      g.showcredits = 1;
+	    //my_name();
+	    name3();
+	    show_my_name();
+	    name5();
 	    }
 	    else
-		g.showcredits = 0;*/
+	    g.showcredits = 0;*/
 	    break;
 	case XK_equal:
 	    g.snake.delay *= 0.9;
@@ -621,6 +623,11 @@ int checkKeys(XEvent *e)
 	case XK_minus:
 	    g.snake.delay *= (1.0 / 0.9);
 	    break;
+	case XK_F1: // help game
+	    printf("Help Screen\n");
+	    g.help ^= 1;
+	    break;
+
 	case XK_a:
 	    g.snake.direction = DIRECTION_LEFT;
 	    break;
@@ -992,19 +999,10 @@ void render(void)
     if(g.showcredits == 1)
     {
 	show_credits(g.xres, g.yres);
-	/*static float w = 400.0f;
-	static float pos[2] = {0.0f+w, g.yres/2.0f};
-	glClear(GL_COLOR_BUFFER_BIT);
-	glPushMatrix();
-	glColor3ub(150,160,220);
-	glTranslatef(pos[0], pos[1], 0.0f);
-	glBegin(GL_QUADS);
-	glVertex2f(-g.xres,-g.yres);
-	glVertex2f(-g.xres, g.yres);
-	glVertex2f(g.xres,g.yres);
-	glVertex2f(g.xres,-g.yres);
-	glEnd();
-	glPopMatrix();*/
+    }
+    if (g.help)
+    {
+	help_screen(g.xres, g.yres);
     }
     else {
 
@@ -1189,7 +1187,7 @@ void render(void)
 	ggprint16(&r, 16, 0x00ffffff, "Snake");
 
     }
-    
+
     if (g.pauseState) {
 	show_pause_screen(g.xres, g.yres);
     }
