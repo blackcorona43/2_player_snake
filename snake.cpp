@@ -1185,6 +1185,11 @@ void render(void)
 	r.bot    = g.yres-100;
 	r.center = 1;
 	ggprint16(&r, 16, 0x00ffffff, "Snake");
+	Rect h;
+	h.left   = 50;
+	h.bot    = 10;
+	h.center = 1;
+        ggprint16(&h, 16, 0x00ffffff, "F1 for help");
 
     }
 
