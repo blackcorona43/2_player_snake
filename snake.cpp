@@ -1000,7 +1000,7 @@ void render(void)
     {
 	show_credits(g.xres, g.yres);
     }
-    if (g.help)
+    else if (g.help)
     {
 	help_screen(g.xres, g.yres);
     }
