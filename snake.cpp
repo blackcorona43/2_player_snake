@@ -48,6 +48,9 @@
 //#include "ppm.h"
 #include "fonts.h"
 #include "dflores2.h"
+#include "stellez.h"
+#include "jsingh.h"
+#include "rcorona.h"
 
 #define USE_OPENAL_SOUND
 #ifdef USE_OPENAL_SOUND
