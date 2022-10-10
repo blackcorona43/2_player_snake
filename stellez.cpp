@@ -49,7 +49,7 @@ void show_credits(int xres, int yres)
     //r.left   = xres/2;
     //r.bot    = yres-100;
     //r.bot    = yres-300; //centered
-    r.bot    = yres-200;
+    r.bot    = yres-150;
     r.center = 1;
     ggprint16(&r, 16, 0x00ffffff, "--Credits--");
     ggprint16(&r, 16, 0x00ffffff, " ");
@@ -57,8 +57,7 @@ void show_credits(int xres, int yres)
     ggprint16(&r, 16, 0x00ffffff, " ");
     ggprint16(&r, 16, 0x00ffffff, "Gabriel Aponte, Dominic Flores");
     ggprint16(&r, 16, 0x00ffffff, " ");
-    ggprint16(&r, 16, 0x00ffffff, 
-	    "Ruben Corona, Samantha Tellez, and Jasdeep Singh");
+    ggprint16(&r, 16, 0x00ffffff, "Ruben Corona, Samantha Tellez, and Jasdeep Singh");
 
 
 }

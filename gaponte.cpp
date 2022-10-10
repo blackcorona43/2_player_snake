@@ -21,7 +21,7 @@ int help_screen(int xres, int yres)
     static float pos[2] = {0.0f+w, yres/2.0f};
     glClear(GL_COLOR_BUFFER_BIT);
     glPushMatrix();
-    glColor3ub(150,160,220);
+    glColor3ub(217,70,40);
     glTranslatef(pos[0], pos[1], 0.0f);
     glBegin(GL_QUADS);
     glVertex2f(-xres,-yres);
@@ -29,25 +29,23 @@ int help_screen(int xres, int yres)
     glVertex2f(xres,yres);
     glVertex2f(xres,-yres);
     glEnd();
-    ggprint16(&r, 16, 0x00ffffff, "Help Screen");
+    ggprint16(&r, 16, 0x00ffffff, "--Help Screen--");
     ggprint16(&r, 16, 0x00ffffff, "     ");
-    ggprint16(&r , 16, 0x00ffffff, "Player 1 Keys: W, A, S, D");
+    ggprint16(&r, 16, 0x00ffffff, "Player 1 Keys: W, A, S, D");
     ggprint16(&r, 16, 0x00ffffff, "     ");
-    ggprint16(&r , 16, 0x00ffffff, "Player 2 Keys: UP, LEFT, DOWN, RIGHT");
+    ggprint16(&r, 16, 0x00ffffff, "Player 2 Keys: UP, LEFT, DOWN, RIGHT");
     ggprint16(&r, 16, 0x00ffffff, "     ");
-    ggprint16(&r, 16, 0x00ffffff, "p for pause     ");
+    ggprint16(&r, 16, 0x00ffffff, "p to Pause the game     ");
     ggprint16(&r, 16, 0x00ffffff, "     ");
-    ggprint16(&r, 16, 0x00ffffff, "c for credits     ");
+    ggprint16(&r, 16, 0x00ffffff, "c to show the Credits Screen     ");
     ggprint16(&r, 16, 0x00ffffff, "     ");
-    ggprint16(&r, 16, 0x00ffffff, "F1 for help     ");
+    ggprint16(&r, 16, 0x00ffffff, "r to reset the game     ");
     ggprint16(&r, 16, 0x00ffffff, "     ");
-    ggprint16(&r, 16, 0x00ffffff, "r for reset game     ");
+    ggprint16(&r, 16, 0x00ffffff, "F1 to show the Help Screen    ");
     ggprint16(&r, 16, 0x00ffffff, "     ");
-    ggprint16(&r, 16, 0x00ffffff, "Esc for quit game     ");
+    ggprint16(&r, 16, 0x00ffffff, "Esc to quit the game     ");
     ggprint16(&r, 16, 0x00ffffff, "     ");
-
     glPopMatrix();
-
     return 0;
 }
 
