@@ -48,4 +48,18 @@ int help_screen(int xres, int yres)
     glPopMatrix();
     return 0;
 }
+int show_power_up(int cent[])
+{
+    //draw power up
+        glColor3f(0.5, 0.5, 0.5);
+        glBegin(GL_QUADS);
+        glVertex2i(cent[0]-4, cent[1]-3);
+        glVertex2i(cent[0]-4, cent[1]+4);
+        glVertex2i(cent[0]+3, cent[1]+4);
+        glVertex2i(cent[0]+3, cent[1]-3);
+        glEnd();
+
+    return 0;
+}
+
 

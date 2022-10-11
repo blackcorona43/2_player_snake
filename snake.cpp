@@ -39,13 +39,9 @@
 #include <time.h>
 #include <math.h>
 #include <X11/Xlib.h>
-//#include <X11/Xutil.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "log.h"
-//#include "ppm.h"
 #include "fonts.h"
 #include "dflores2.h"
 #include "stellez.h"
@@ -174,6 +170,7 @@ struct Global {
     int p2_points = 0;
     int count = 0;
     int help = 0;
+    unsigned int power_up = 0;
     Image *marbleImage;
     Image *creditsImage;
     GLuint marbleTexture;
@@ -574,6 +571,7 @@ void resetGame()
     g.gameover  = 0;
     g.winner    = 0;
 }
+extern int show_power_up(int[]);
 extern int help_screen(int,int);
 extern int my_name();
 extern int name3();
@@ -604,16 +602,6 @@ int checkKeys(XEvent *e)
 	    return 1;
 	case XK_c:// open/close credits page
 	    g.showcredits = manage_state_st(g.showcredits);
-	    /*g.count++;
-	      if (g.count%2==1) {
-	      g.showcredits = 1;
-	    //my_name();
-	    name3();
-	    show_my_name();
-	    name5();
-	    }
-	    else
-	    g.showcredits = 0;*/
 	    break;
 	case XK_equal:
 	    g.snake.delay *= 0.9;
@@ -627,7 +615,10 @@ int checkKeys(XEvent *e)
 	    printf("Help Screen\n");
 	    g.help ^= 1;
 	    break;
-
+	case XK_f: // function testing
+	    printf("Power Up testing\n");
+	    g.power_up ^= 1;
+	    break;
 	case XK_a:
 	    g.snake.direction = DIRECTION_LEFT;
 	    break;
@@ -928,6 +919,10 @@ void physics(void)
 	}
 	//did the snake eat the rat???
 	if (headpos[0] == g.rat.pos[0] && headpos[1] == g.rat.pos[1]) {
+	    if (g.power_up)
+	    {
+		g.snake.delay *= 0.9;
+	    }
 	    //yes, increase length of snake.
 	    playSound(g.alSourceTick);
 	    //put new segment at end of snake.
@@ -1190,7 +1185,9 @@ void render(void)
 	h.bot    = 10;
 	h.center = 1;
         ggprint16(&h, 16, 0x00ffffff, "F1 for help");
-
+    if (g.power_up) {
+	show_power_up(cent);
+    }
     }
 
     if (g.pauseState) {
