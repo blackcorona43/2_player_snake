@@ -483,10 +483,10 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
 	    g.marbleImage->width, g.marbleImage->height,
 	    0, GL_RGB, GL_UNSIGNED_BYTE, g.marbleImage->data);
-    
+
     // Snake Head Image
     g.snakeImage = &img3[0];
-    
+
     //create opengl texture elements
     glGenTextures(1, &g.snakeTexture);
     glBindTexture(GL_TEXTURE_2D, g.snakeTexture);
@@ -522,8 +522,8 @@ void initSnake()
 void initRat()
 {
     g.rat.status = 1;
-    g.rat.pos[0] = 20;
-    g.rat.pos[1] = 20;
+    g.rat.pos[0] = g.gridDim/2;
+    g.rat.pos[1] = g.gridDim/2;
 }
 
 void init()
@@ -1209,11 +1209,35 @@ void render(void)
 	h.left   = 50;
 	h.bot    = 10;
 	h.center = 1;
-        ggprint16(&h, 16, 0x00ffffff, "F1 for help");
+	ggprint16(&h, 16, 0x00ffffff, "F1 for help");
 
-	//Texture Feature
+	//Texture Feature created by Dominic
 	if (g.texture_feature == 1) {
-    		mouseTexture(g.snakeTexture, cent);
+	    //draw a border using a triangle strip
+	    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	    glEnable(GL_BLEND);
+	    glColor3f(1.0,1.0,0.0);
+	    glColor4f(0.0,1.0,0.0,0.5);
+	    int w = 20;
+	    glBegin(GL_TRIANGLE_STRIP);
+	    glVertex2f(0,0);
+	    glVertex2f(0 + w, w);
+
+	    glVertex2f(0,g.yres);
+	    glVertex2f(0 + w, g.yres - w);
+
+	    glVertex2f(g.xres, g.yres);
+	    glVertex2f(g.xres - w, g.yres - w);
+
+	    glVertex2f(g.xres, 0);
+	    glVertex2f(g.xres - w, w);
+
+	    glVertex2f(0,0);
+	    glVertex2f(0 + w, w);
+	    glEnd();
+	    glDisable(GL_BLEND);
+
+	    mouseTexture(g.snakeTexture, cent);
 	}
     }
 
