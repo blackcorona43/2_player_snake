@@ -169,7 +169,7 @@ struct Global {
     int winner;
     int done = 0;
     unsigned int showcredits;
-    int size = 8;
+    int size = 18;
     unsigned int texture_feature = 0;
     int pauseState = 0;
     int p1_points = 0;
@@ -189,7 +189,7 @@ struct Global {
     Global() {
 	xres = 800;
 	yres = 600;
-	gridDim = 40;
+	gridDim = 20;
 	gameover = 0;
 	winner = 0;
 	nbuttons = 0;
@@ -513,8 +513,8 @@ void initSnake()
     g.snake2.delay = .15;
     g.snake2.length = 5;
     for (i=0; i<g.snake2.length; i++) {
-	g.snake2.pos[i][0] = 38;
-	g.snake2.pos[i][1] = 38;
+	g.snake2.pos[i][0] = 18;
+	g.snake2.pos[i][1] = 18;
     }
     g.snake2.direction = DIRECTION_LEFT;
 }
@@ -528,7 +528,7 @@ void initRat()
 
 void init()
 {
-    g.boardDim = g.gridDim * 20;
+    g.boardDim = g.gridDim * 40;
     //
     initSnake();
     initRat();
@@ -1113,7 +1113,7 @@ void render(void)
 	int y1 = s1+b2;
 	glColor3f(0.1f, 0.1f, 0.1f);
 	glBegin(GL_LINES);
-	for (i=1; i<g.gridDim/2; i++) {
+	for (i=1; i<g.gridDim; i++) {
 	    y0 += 40;
 	    glVertex2i(x0,y0);
 	    glVertex2i(x1,y0);
@@ -1121,7 +1121,7 @@ void render(void)
 	x0 = s0-b2;
 	y0 = s1-b2;
 	y1 = s1+b2;
-	for (j=1; j<g.gridDim/2; j++) {
+	for (j=1; j<g.gridDim; j++) {
 	    x0 += 40;
 	    glVertex2i(x0,y0);
 	    glVertex2i(x0,y1);
