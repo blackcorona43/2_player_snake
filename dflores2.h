@@ -6,5 +6,5 @@
 #include "fonts.h"
 
 extern void show_pause_screen(int, int);
-extern void snakeHead (GLuint, int[]);
+extern void mouseTexture(GLuint, int[]);
 

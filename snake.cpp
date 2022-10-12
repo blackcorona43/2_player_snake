@@ -169,6 +169,8 @@ struct Global {
     int winner;
     int done = 0;
     unsigned int showcredits;
+    int size = 8;
+    unsigned int texture_feature = 0;
     int pauseState = 0;
     int p1_points = 0;
     int p2_points = 0;
@@ -526,7 +528,7 @@ void initRat()
 
 void init()
 {
-    g.boardDim = g.gridDim * 10;
+    g.boardDim = g.gridDim * 20;
     //
     initSnake();
     initRat();
@@ -670,6 +672,9 @@ int checkKeys(XEvent *e)
 	    break;
 	case XK_p:
 	    g.pauseState ^= 1;
+	    break;
+	case XK_t:
+	    g.texture_feature ^= 1;
 	    break;
     }
     return 0;
@@ -1108,16 +1113,16 @@ void render(void)
 	int y1 = s1+b2;
 	glColor3f(0.1f, 0.1f, 0.1f);
 	glBegin(GL_LINES);
-	for (i=1; i<g.gridDim; i++) {
-	    y0 += 10;
+	for (i=1; i<g.gridDim/2; i++) {
+	    y0 += 40;
 	    glVertex2i(x0,y0);
 	    glVertex2i(x1,y0);
 	}
 	x0 = s0-b2;
 	y0 = s1-b2;
 	y1 = s1+b2;
-	for (j=1; j<g.gridDim; j++) {
-	    x0 += 10;
+	for (j=1; j<g.gridDim/2; j++) {
+	    x0 += 40;
 	    glVertex2i(x0,y0);
 	    glVertex2i(x0,y1);
 	}
@@ -1140,10 +1145,10 @@ void render(void)
 	glBegin(GL_QUADS);
 	for (i=0; i<g.snake.length; i++) {
 	    getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
-	    glVertex2i(cent[0]-4, cent[1]-3);
-	    glVertex2i(cent[0]-4, cent[1]+4);
-	    glVertex2i(cent[0]+3, cent[1]+4);
-	    glVertex2i(cent[0]+3, cent[1]-3);
+	    glVertex2i(cent[0]-g.size, cent[1]-g.size);
+	    glVertex2i(cent[0]-g.size, cent[1]+g.size);
+	    glVertex2i(cent[0]+g.size, cent[1]+g.size);
+	    glVertex2i(cent[0]+g.size, cent[1]-g.size);
 	    c[0] +=	rgb[0];
 	    c[2] +=	rgb[2];
 	    glColor3fv(c);
@@ -1151,10 +1156,10 @@ void render(void)
 	//2ND Snake
 	for (i=0; i<g.snake2.length; i++) {
 	    getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
-	    glVertex2i(cent[0]-4, cent[1]-3);
-	    glVertex2i(cent[0]-4, cent[1]+4);
-	    glVertex2i(cent[0]+3, cent[1]+4);
-	    glVertex2i(cent[0]+3, cent[1]-3);
+	    glVertex2i(cent[0]-g.size, cent[1]-g.size);
+	    glVertex2i(cent[0]-g.size, cent[1]+g.size);
+	    glVertex2i(cent[0]+g.size, cent[1]+g.size);
+	    glVertex2i(cent[0]+g.size, cent[1]-g.size);
 	    c2[0] +=	rgb2[0];
 	    c2[2] +=	rgb2[2];
 	    glColor3fv(c2);
@@ -1206,7 +1211,10 @@ void render(void)
 	h.center = 1;
         ggprint16(&h, 16, 0x00ffffff, "F1 for help");
 
-    	snakeHead(g.snakeTexture, cent);
+	//Texture Feature
+	if (g.texture_feature == 1) {
+    		mouseTexture(g.snakeTexture, cent);
+	}
     }
 
     if (g.pauseState) {
