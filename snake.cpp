@@ -151,6 +151,7 @@ class Image {
 };
 Image img[1] = {"./images/dirt.gif" };
 Image img2[1] = {"./images/credits.gif" };
+Image img3[1] = {"./images/rat1.gif" };
 
 
 struct Global {
@@ -165,6 +166,8 @@ struct Global {
     int winner;
     int done = 0;
     unsigned int showcredits;
+    int size = 18;
+    unsigned int texture_feature = 0;
     int pauseState = 0;
     int p1_points = 0;
     int p2_points = 0;
@@ -172,8 +175,11 @@ struct Global {
     int help = 0;
     unsigned int power_up = 0;
     Image *marbleImage;
+    Image *snakeImage;
     Image *creditsImage;
     GLuint marbleTexture;
+    //Mouse Texture -- Needs to be renamed
+    GLuint snakeTexture;
     Button button[MAXBUTTONS];
     int nbuttons;
     //
@@ -182,13 +188,14 @@ struct Global {
     Global() {
 	xres = 800;
 	yres = 600;
-	gridDim = 40;
+	gridDim = 20;
 	gameover = 0;
 	winner = 0;
 	nbuttons = 0;
 	showcredits = 0;
 	marbleImage=NULL;
 	creditsImage=NULL;
+	snakeImage=NULL;
     }
 } g;
 
@@ -475,6 +482,19 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
 	    g.marbleImage->width, g.marbleImage->height,
 	    0, GL_RGB, GL_UNSIGNED_BYTE, g.marbleImage->data);
+
+    // Snake Head Image
+    g.snakeImage = &img3[0];
+
+    //create opengl texture elements
+    glGenTextures(1, &g.snakeTexture);
+    glBindTexture(GL_TEXTURE_2D, g.snakeTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+            g.snakeImage->width, g.snakeImage->height,
+            0, GL_RGB, GL_UNSIGNED_BYTE, g.snakeImage->data);
+
 }
 
 void initSnake()
@@ -493,8 +513,8 @@ void initSnake()
     g.snake2.delay = .15;
     g.snake2.length = 5;
     for (i=0; i<g.snake2.length; i++) {
-	g.snake2.pos[i][0] = 38;
-	g.snake2.pos[i][1] = 38;
+	g.snake2.pos[i][0] = 18;
+	g.snake2.pos[i][1] = 18;
     }
     g.snake2.direction = DIRECTION_LEFT;
 }
@@ -502,13 +522,13 @@ void initSnake()
 void initRat()
 {
     g.rat.status = 1;
-    g.rat.pos[0] = 20;
-    g.rat.pos[1] = 20;
+    g.rat.pos[0] = g.gridDim/2;
+    g.rat.pos[1] = g.gridDim/2;
 }
 
 void init()
 {
-    g.boardDim = g.gridDim * 10;
+    g.boardDim = g.gridDim * 40;
     //
     initSnake();
     initRat();
@@ -646,6 +666,9 @@ int checkKeys(XEvent *e)
 	    break;
 	case XK_p:
 	    g.pauseState ^= 1;
+	    break;
+	case XK_t:
+	    g.texture_feature ^= 1;
 	    break;
     }
     return 0;
@@ -1089,7 +1112,7 @@ void render(void)
 	glColor3f(0.1f, 0.1f, 0.1f);
 	glBegin(GL_LINES);
 	for (i=1; i<g.gridDim; i++) {
-	    y0 += 10;
+	    y0 += 40;
 	    glVertex2i(x0,y0);
 	    glVertex2i(x1,y0);
 	}
@@ -1097,7 +1120,7 @@ void render(void)
 	y0 = s1-b2;
 	y1 = s1+b2;
 	for (j=1; j<g.gridDim; j++) {
-	    x0 += 10;
+	    x0 += 40;
 	    glVertex2i(x0,y0);
 	    glVertex2i(x0,y1);
 	}
@@ -1120,10 +1143,10 @@ void render(void)
 	glBegin(GL_QUADS);
 	for (i=0; i<g.snake.length; i++) {
 	    getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
-	    glVertex2i(cent[0]-4, cent[1]-3);
-	    glVertex2i(cent[0]-4, cent[1]+4);
-	    glVertex2i(cent[0]+3, cent[1]+4);
-	    glVertex2i(cent[0]+3, cent[1]-3);
+	    glVertex2i(cent[0]-g.size, cent[1]-g.size);
+	    glVertex2i(cent[0]-g.size, cent[1]+g.size);
+	    glVertex2i(cent[0]+g.size, cent[1]+g.size);
+	    glVertex2i(cent[0]+g.size, cent[1]-g.size);
 	    c[0] +=	rgb[0];
 	    c[2] +=	rgb[2];
 	    glColor3fv(c);
@@ -1131,10 +1154,10 @@ void render(void)
 	//2ND Snake
 	for (i=0; i<g.snake2.length; i++) {
 	    getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
-	    glVertex2i(cent[0]-4, cent[1]-3);
-	    glVertex2i(cent[0]-4, cent[1]+4);
-	    glVertex2i(cent[0]+3, cent[1]+4);
-	    glVertex2i(cent[0]+3, cent[1]-3);
+	    glVertex2i(cent[0]-g.size, cent[1]-g.size);
+	    glVertex2i(cent[0]-g.size, cent[1]+g.size);
+	    glVertex2i(cent[0]+g.size, cent[1]+g.size);
+	    glVertex2i(cent[0]+g.size, cent[1]-g.size);
 	    c2[0] +=	rgb2[0];
 	    c2[2] +=	rgb2[2];
 	    glColor3fv(c2);
@@ -1167,7 +1190,7 @@ void render(void)
        //
        //draw rat...
 	getGridCenter(g.rat.pos[1],g.rat.pos[0],cent);
-	glColor3f(0.9, 0.9f, 0.9f);
+	glColor3f(0.0, 0.0f, 0.0f);
 	glBegin(GL_QUADS);
 	glVertex2i(cent[0]-4, cent[1]-3);
 	glVertex2i(cent[0]-4, cent[1]+4);
@@ -1188,7 +1211,38 @@ void render(void)
     if (g.power_up) {
 	show_power_up(cent);
     }
+
+        //Texture Feature created by Dominic
+        if (g.texture_feature == 1) {
+            //draw a border using a triangle strip
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_BLEND);
+            glColor3f(1.0,1.0,0.0);
+            glColor4f(0.0,1.0,0.0,0.5);
+            int w = 20;
+            glBegin(GL_TRIANGLE_STRIP);
+            glVertex2f(0,0);
+            glVertex2f(0 + w, w);
+
+            glVertex2f(0,g.yres);
+            glVertex2f(0 + w, g.yres - w);
+
+            glVertex2f(g.xres, g.yres);
+            glVertex2f(g.xres - w, g.yres - w);
+
+            glVertex2f(g.xres, 0);
+            glVertex2f(g.xres - w, w);
+
+            glVertex2f(0,0);
+            glVertex2f(0 + w, w);
+            glEnd();
+            glDisable(GL_BLEND);
+
+            mouseTexture(g.snakeTexture, cent);
+        }
     }
+
+
 
     if (g.pauseState) {
 	show_pause_screen(g.xres, g.yres);
