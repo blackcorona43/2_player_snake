@@ -5,7 +5,7 @@
 #include <GL/glx.h>
 #include "fonts.h"
 
-int s = 30;
+int s = 24;
 
 void show_pause_screen(int xres, int yres)
 {	
