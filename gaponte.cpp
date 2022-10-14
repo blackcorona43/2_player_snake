@@ -51,7 +51,7 @@ int help_screen(int xres, int yres)
 int show_power_up(int cent[])
 {
     //draw power up
-        glColor3f(0.5, 0.5, 0.5);
+        glColor3f(255, 255, 0);
         glBegin(GL_QUADS);
         glVertex2i(cent[0]-4, cent[1]-3);
         glVertex2i(cent[0]-4, cent[1]+4);

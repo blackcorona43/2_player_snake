@@ -492,8 +492,8 @@ void initOpengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
-            g.snakeImage->width, g.snakeImage->height,
-            0, GL_RGB, GL_UNSIGNED_BYTE, g.snakeImage->data);
+	    g.snakeImage->width, g.snakeImage->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, g.snakeImage->data);
 
 }
 
@@ -944,7 +944,13 @@ void physics(void)
 	if (headpos[0] == g.rat.pos[0] && headpos[1] == g.rat.pos[1]) {
 	    if (g.power_up)
 	    {
-		g.snake.delay *= 0.9;
+		int addlength = rand() % 4 + 25;
+		for (i=0; i<addlength; i++) {
+		    g.snake.pos[g.snake.length][0] = g.snake.pos[g.snake.length-1][0];
+		    g.snake.pos[g.snake.length][1] = g.snake.pos[g.snake.length-1][1];
+		    g.snake.length++;
+		}
+
 	    }
 	    //yes, increase length of snake.
 	    playSound(g.alSourceTick);
@@ -979,6 +985,15 @@ void physics(void)
 	}
 	//did snake2 eat the rat???
 	if (headpos2[0] == g.rat.pos[0] && headpos2[1] == g.rat.pos[1]) {
+	    if (g.power_up) {
+		int addlength = rand() % 4 + 25;
+		for (i=0; i<addlength; i++) {
+		    g.snake2.pos[g.snake2.length][0] = g.snake2.pos[g.snake2.length-1][0];
+		    g.snake2.pos[g.snake2.length][1] = g.snake2.pos[g.snake2.length-1][1];
+		    g.snake2.length++;
+		}
+
+	    }
 	    //yes, increase length of snake.
 	    playSound(g.alSourceTick);
 	    //put new segment at end of snake.
@@ -1207,39 +1222,39 @@ void render(void)
 	h.left   = 50;
 	h.bot    = 10;
 	h.center = 1;
-        ggprint16(&h, 16, 0x00ffffff, "F1 for help");
-    if (g.power_up) {
-	show_power_up(cent);
-    }
+	ggprint16(&h, 16, 0x00ffffff, "F1 for help");
+	if (g.power_up) {
+	    show_power_up(cent);
+	}
 
-        //Texture Feature created by Dominic
-        if (g.texture_feature == 1) {
-            //draw a border using a triangle strip
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glEnable(GL_BLEND);
-            glColor3f(1.0,1.0,0.0);
-            glColor4f(0.0,1.0,0.0,0.5);
-            int w = 20;
-            glBegin(GL_TRIANGLE_STRIP);
-            glVertex2f(0,0);
-            glVertex2f(0 + w, w);
+	//Texture Feature created by Dominic
+	if (g.texture_feature == 1) {
+	    //draw a border using a triangle strip
+	    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	    glEnable(GL_BLEND);
+	    glColor3f(1.0,1.0,0.0);
+	    glColor4f(0.0,1.0,0.0,0.5);
+	    int w = 20;
+	    glBegin(GL_TRIANGLE_STRIP);
+	    glVertex2f(0,0);
+	    glVertex2f(0 + w, w);
 
-            glVertex2f(0,g.yres);
-            glVertex2f(0 + w, g.yres - w);
+	    glVertex2f(0,g.yres);
+	    glVertex2f(0 + w, g.yres - w);
 
-            glVertex2f(g.xres, g.yres);
-            glVertex2f(g.xres - w, g.yres - w);
+	    glVertex2f(g.xres, g.yres);
+	    glVertex2f(g.xres - w, g.yres - w);
 
-            glVertex2f(g.xres, 0);
-            glVertex2f(g.xres - w, w);
+	    glVertex2f(g.xres, 0);
+	    glVertex2f(g.xres - w, w);
 
-            glVertex2f(0,0);
-            glVertex2f(0 + w, w);
-            glEnd();
-            glDisable(GL_BLEND);
+	    glVertex2f(0,0);
+	    glVertex2f(0 + w, w);
+	    glEnd();
+	    glDisable(GL_BLEND);
 
-            mouseTexture(g.snakeTexture, cent);
-        }
+	    mouseTexture(g.snakeTexture, cent);
+	}
     }
 
 
