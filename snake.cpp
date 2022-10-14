@@ -243,7 +243,7 @@ class X11_wrapper {
 	void setTitle() {
 	    //Set the window title bar.
 	    XMapWindow(dpy, win);
-	    XStoreName(dpy, win, "snake");
+	    XStoreName(dpy, win, "Hungry Hungry Snake");
 	}
 	void setupScreenRes(const int w, const int h) {
 	    g.xres = w;
@@ -635,7 +635,7 @@ int checkKeys(XEvent *e)
 	    printf("Help Screen\n");
 	    g.help ^= 1;
 	    break;
-	case XK_f: // function testing
+	case XK_m: // power up mode
 	    printf("Power Up testing\n");
 	    g.power_up ^= 1;
 	    break;
@@ -1205,7 +1205,7 @@ void render(void)
        //
        //draw rat...
 	getGridCenter(g.rat.pos[1],g.rat.pos[0],cent);
-	glColor3f(0.0, 0.0f, 0.0f);
+	glColor3f(1, 1, 1);
 	glBegin(GL_QUADS);
 	glVertex2i(cent[0]-4, cent[1]-3);
 	glVertex2i(cent[0]-4, cent[1]+4);
@@ -1217,7 +1217,7 @@ void render(void)
 	r.left   = g.xres/2;
 	r.bot    = g.yres-100;
 	r.center = 1;
-	ggprint16(&r, 16, 0x00ffffff, "Snake");
+	ggprint16(&r, 16, 0x00ffffff, "Hungry Hungry Snake");
 	Rect h;
 	h.left   = 50;
 	h.bot    = 10;
