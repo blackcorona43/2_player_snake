@@ -830,6 +830,7 @@ void physics(void)
     aihead[0] = g.com_snake.pos[0][0];
     aihead[1] = g.com_snake.pos[0][1];    
 
+    //snake logic for what direction to move
     if (g.flag == 1){
         if (g.rat.pos[0] < aihead[0])
             g.com_snake.direction = DIRECTION_LEFT;
@@ -887,7 +888,7 @@ void physics(void)
         
         //check if snake crosses with AI
         g.gameover = player_crosses_ai(g.com_snake.length, g.com_snake.pos, 
-                g.snake.pos, g.gameover);
+                                       g.snake.pos, g.gameover);
         
         ainewpos[0] = aihead[0];
         ainewpos[1] = aihead[1];
@@ -1015,7 +1016,6 @@ void physics(void)
         if (g.snake2.pos[i][0] == g.snake.pos[0][0] &&
                 g.snake2.pos[i][1] == g.snake.pos[0][1]) {
             g.gameover=1;
-
             printf("\n");
             printf("-----------------------------\n");
             printf("Snake 2 killed Snake 1!\n");
