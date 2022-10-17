@@ -6,5 +6,5 @@
 #include "fonts.h"
 
 extern void show_pause_screen(int, int);
-extern void mouseTexture(GLuint, int[]);
+extern void game_Texture(GLuint, int[]);
 

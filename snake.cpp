@@ -39,13 +39,9 @@
 #include <time.h>
 #include <math.h>
 #include <X11/Xlib.h>
-//#include <X11/Xutil.h>
-//#include <GL/gl.h>
-//#include <GL/glu.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "log.h"
-//#include "ppm.h"
 #include "fonts.h"
 #include "dflores2.h"
 #include "stellez.h"
@@ -156,6 +152,8 @@ class Image {
 Image img[1] = {"./images/dirt.gif" };
 Image img2[1] = {"./images/credits.gif" };
 Image img3[1] = {"./images/rat1.gif" };
+Image img4[1] = {"./images/body_green.gif" };
+
 
 struct Global {
     int xres, yres;
@@ -169,34 +167,39 @@ struct Global {
     int winner;
     int done = 0;
     unsigned int showcredits;
-    int size = 18;
+    int size = 16;
     unsigned int texture_feature = 0;
     int pauseState = 0;
     int p1_points = 0;
     int p2_points = 0;
     int count = 0;
     int help = 0;
+    unsigned int power_up = 0;
     Image *marbleImage;
+    Image *mouseImage;
+    Image *body_greenImage;
     Image *creditsImage;
-    Image *snakeImage;
     GLuint marbleTexture;
-    GLuint snakeTexture;
+    //Mouse Texture -- Needs to be renamed
+    GLuint mouseTexture;
+    GLuint body_greenTexture;
     Button button[MAXBUTTONS];
     int nbuttons;
     //
     ALuint alBufferDrip, alBufferTick;
     ALuint alSourceDrip, alSourceTick;
     Global() {
-	xres = 800;
-	yres = 600;
-	gridDim = 20;
+	xres = 2400;
+	yres = 1800;
+	gridDim = 32;
 	gameover = 0;
 	winner = 0;
 	nbuttons = 0;
 	showcredits = 0;
 	marbleImage=NULL;
 	creditsImage=NULL;
-	snakeImage=NULL;
+	mouseImage=NULL;
+	body_greenImage=NULL;
     }
 } g;
 
@@ -244,7 +247,7 @@ class X11_wrapper {
 	void setTitle() {
 	    //Set the window title bar.
 	    XMapWindow(dpy, win);
-	    XStoreName(dpy, win, "snake");
+	    XStoreName(dpy, win, "Hungry Hungry Snake");
 	}
 	void setupScreenRes(const int w, const int h) {
 	    g.xres = w;
@@ -484,17 +487,29 @@ void initOpengl(void)
 	    g.marbleImage->width, g.marbleImage->height,
 	    0, GL_RGB, GL_UNSIGNED_BYTE, g.marbleImage->data);
 
-    // Snake Head Image
-    g.snakeImage = &img3[0];
+    // Mouse Image
+    g.mouseImage = &img3[0];
 
     //create opengl texture elements
-    glGenTextures(1, &g.snakeTexture);
-    glBindTexture(GL_TEXTURE_2D, g.snakeTexture);
+    glGenTextures(1, &g.mouseTexture);
+    glBindTexture(GL_TEXTURE_2D, g.mouseTexture);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
-	    g.snakeImage->width, g.snakeImage->height,
-	    0, GL_RGB, GL_UNSIGNED_BYTE, g.snakeImage->data);
+	    g.mouseImage->width, g.mouseImage->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, g.mouseImage->data);
+
+    // Snake Head Image
+    g.body_greenImage = &img4[0];
+
+    //create opengl texture elements
+    glGenTextures(1, &g.body_greenTexture);
+    glBindTexture(GL_TEXTURE_2D, g.body_greenTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+	    g.body_greenImage->width, g.body_greenImage->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, g.body_greenImage->data);
 }
 
 void initSnake()
@@ -504,8 +519,8 @@ void initSnake()
     g.snake.delay = .15;
     g.snake.length = 5;
     for (i=0; i<g.snake.length; i++) {
-	g.snake.pos[i][0] = 2;
-	g.snake.pos[i][1] = 2;
+	g.snake.pos[i][0] = 1;
+	g.snake.pos[i][1] = 1;
     }
     g.snake.direction = DIRECTION_RIGHT;
     //snake.timer = glfwGetTime() + 0.5;
@@ -513,8 +528,8 @@ void initSnake()
     g.snake2.delay = .15;
     g.snake2.length = 5;
     for (i=0; i<g.snake2.length; i++) {
-	g.snake2.pos[i][0] = 18;
-	g.snake2.pos[i][1] = 18;
+	g.snake2.pos[i][0] = 30;
+	g.snake2.pos[i][1] = 30;
     }
     g.snake2.direction = DIRECTION_LEFT;
 }
@@ -528,7 +543,7 @@ void initRat()
 
 void init()
 {
-    g.boardDim = g.gridDim * 40;
+    g.boardDim = g.gridDim * 32;
     //
     initSnake();
     initRat();
@@ -591,6 +606,7 @@ void resetGame()
     g.gameover  = 0;
     g.winner    = 0;
 }
+extern int show_power_up(int[]);
 extern int help_screen(int,int);
 extern int my_name();
 extern int name3();
@@ -621,16 +637,6 @@ int checkKeys(XEvent *e)
 	    return 1;
 	case XK_c:// open/close credits page
 	    g.showcredits = manage_state_st(g.showcredits);
-	    /*g.count++;
-	      if (g.count%2==1) {
-	      g.showcredits = 1;
-	    //my_name();
-	    name3();
-	    show_my_name();
-	    name5();
-	    }
-	    else
-	    g.showcredits = 0;*/
 	    break;
 	case XK_equal:
 	    g.snake.delay *= 0.9;
@@ -644,7 +650,10 @@ int checkKeys(XEvent *e)
 	    printf("Help Screen\n");
 	    g.help ^= 1;
 	    break;
-
+	case XK_m: // power up mode
+	    printf("Power Up testing\n");
+	    g.power_up ^= 1;
+	    break;
 	case XK_a:
 	    g.snake.direction = DIRECTION_LEFT;
 	    break;
@@ -948,6 +957,16 @@ void physics(void)
 	}
 	//did the snake eat the rat???
 	if (headpos[0] == g.rat.pos[0] && headpos[1] == g.rat.pos[1]) {
+	    if (g.power_up)
+	    {
+		int addlength = rand() % 4 + 25;
+		for (i=0; i<addlength; i++) {
+		    g.snake.pos[g.snake.length][0] = g.snake.pos[g.snake.length-1][0];
+		    g.snake.pos[g.snake.length][1] = g.snake.pos[g.snake.length-1][1];
+		    g.snake.length++;
+		}
+
+	    }
 	    //yes, increase length of snake.
 	    playSound(g.alSourceTick);
 	    //put new segment at end of snake.
@@ -981,6 +1000,15 @@ void physics(void)
 	}
 	//did snake2 eat the rat???
 	if (headpos2[0] == g.rat.pos[0] && headpos2[1] == g.rat.pos[1]) {
+	    if (g.power_up) {
+		int addlength = rand() % 4 + 25;
+		for (i=0; i<addlength; i++) {
+		    g.snake2.pos[g.snake2.length][0] = g.snake2.pos[g.snake2.length-1][0];
+		    g.snake2.pos[g.snake2.length][1] = g.snake2.pos[g.snake2.length-1][1];
+		    g.snake2.length++;
+		}
+
+	    }
 	    //yes, increase length of snake.
 	    playSound(g.alSourceTick);
 	    //put new segment at end of snake.
@@ -1114,7 +1142,7 @@ void render(void)
 	glColor3f(0.1f, 0.1f, 0.1f);
 	glBegin(GL_LINES);
 	for (i=1; i<g.gridDim; i++) {
-	    y0 += 40;
+	    y0 += 32;
 	    glVertex2i(x0,y0);
 	    glVertex2i(x1,y0);
 	}
@@ -1122,7 +1150,7 @@ void render(void)
 	y0 = s1-b2;
 	y1 = s1+b2;
 	for (j=1; j<g.gridDim; j++) {
-	    x0 += 40;
+	    x0 += 32;
 	    glVertex2i(x0,y0);
 	    glVertex2i(x0,y1);
 	}
@@ -1145,24 +1173,16 @@ void render(void)
 	glBegin(GL_QUADS);
 	for (i=0; i<g.snake.length; i++) {
 	    getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
-	    glVertex2i(cent[0]-g.size, cent[1]-g.size);
-	    glVertex2i(cent[0]-g.size, cent[1]+g.size);
-	    glVertex2i(cent[0]+g.size, cent[1]+g.size);
-	    glVertex2i(cent[0]+g.size, cent[1]-g.size);
-	    c[0] +=	rgb[0];
-	    c[2] +=	rgb[2];
-	    glColor3fv(c);
+	    if (g.snake.pos[0][0]) {
+		game_Texture(g.mouseTexture, cent);
+	    }
+	    else
+	    	game_Texture(g.body_greenTexture, cent);
 	}
 	//2ND Snake
 	for (i=0; i<g.snake2.length; i++) {
 	    getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
-	    glVertex2i(cent[0]-g.size, cent[1]-g.size);
-	    glVertex2i(cent[0]-g.size, cent[1]+g.size);
-	    glVertex2i(cent[0]+g.size, cent[1]+g.size);
-	    glVertex2i(cent[0]+g.size, cent[1]-g.size);
-	    c2[0] +=	rgb2[0];
-	    c2[2] +=	rgb2[2];
-	    glColor3fv(c2);
+	    game_Texture(g.body_greenTexture, cent);
 	}
 
 	glEnd();
@@ -1192,7 +1212,7 @@ void render(void)
        //
        //draw rat...
 	getGridCenter(g.rat.pos[1],g.rat.pos[0],cent);
-	glColor3f(0.0, 0.0f, 0.0f);
+	glColor3f(1, 1, 1);
 	glBegin(GL_QUADS);
 	glVertex2i(cent[0]-4, cent[1]-3);
 	glVertex2i(cent[0]-4, cent[1]+4);
@@ -1204,12 +1224,15 @@ void render(void)
 	r.left   = g.xres/2;
 	r.bot    = g.yres-100;
 	r.center = 1;
-	ggprint16(&r, 16, 0x00ffffff, "Snake");
+	ggprint16(&r, 16, 0x00ffffff, "Hungry Hungry Snake");
 	Rect h;
 	h.left   = 50;
 	h.bot    = 10;
 	h.center = 1;
 	ggprint16(&h, 16, 0x00ffffff, "F1 for help");
+	if (g.power_up) {
+	    show_power_up(cent);
+	}
 
 	//Texture Feature created by Dominic
 	if (g.texture_feature == 1) {
@@ -1237,9 +1260,11 @@ void render(void)
 	    glEnd();
 	    glDisable(GL_BLEND);
 
-	    mouseTexture(g.snakeTexture, cent);
+	    game_Texture(g.mouseTexture, cent);
 	}
     }
+
+
 
     if (g.pauseState) {
 	show_pause_screen(g.xres, g.yres);
