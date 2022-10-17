@@ -12,7 +12,7 @@
 //
 //A minor bug was left in the program for demonstration.
 //
-//These items could be used to generate your requirements phamainse.
+//These items could be used to generate your requirements phase.
 //
 // . Introduction page
 // . Title page
@@ -43,7 +43,9 @@
 #include <GL/glx.h>
 #include "log.h"
 #include "fonts.h"
-//#include "rcorona.cpp"
+#include "dflores2.h"
+#include "stellez.h"
+#include "jsingh.h"
 #include "rcorona.h"
 
 #define USE_OPENAL_SOUND
@@ -73,7 +75,6 @@ typedef struct t_snake {
     double timer;
     double delay;
 } Snake, Snake2;
-
 //
 typedef struct t_rat {
     int status;
@@ -97,70 +98,67 @@ typedef struct t_button {
 
 class Image {
     public:
-        int width, height;
-        unsigned char *data;
-        ~Image() { delete [] data; }
-        Image(const char *fname) {
-            if (fname[0] == '\0')
-                return;
-            //printf("fname **%s**\n", fname);
-            int ppmFlag = 0;
-            char name[40];
-            strcpy(name, fname);
-            int slen = strlen(name);
-            char ppmname[80];
-            if (strncmp(name+(slen-4), ".ppm", 4) == 0)
-                ppmFlag = 1;
-            if (ppmFlag) {
-                strcpy(ppmname, name);
-            } else {
-                name[slen-4] = '\0';
-                //printf("name **%s**\n", name);
-                sprintf(ppmname,"%s.ppm", name);
-                //printf("ppmname **%s**\n", ppmname);
-                char ts[100];
-                //system("convert img.jpg img.ppm");
-                sprintf(ts, "convert %s %s", fname, ppmname);
-                system(ts);
-            }
-            //sprintf(ts, "%s", name);
-            FILE *fpi = fopen(ppmname, "r");
-            if (fpi) {
-                char line[200];
-                fgets(line, 200, fpi);
-                fgets(line, 200, fpi);
-                //skip comments and blank lines
-                while (line[0] == '#' || strlen(line) < 2)
-                    fgets(line, 200, fpi);
-                sscanf(line, "%i %i", &width, &height);
-                fgets(line, 200, fpi);
-                //get pixel data
-                int n = width * height * 3;			
-                data = new unsigned char[n];			
-                for (int i=0; i<n; i++)
-                    data[i] = fgetc(fpi);
-                fclose(fpi);
-            } else {
-                printf("ERROR opening image: %s\n",ppmname);
-                exit(0);
-            }
-            if (!ppmFlag)
-                unlink(ppmname);
-        }
+	int width, height;
+	unsigned char *data;
+	~Image() { delete [] data; }
+	Image(const char *fname) {
+	    if (fname[0] == '\0')
+		return;
+	    //printf("fname **%s**\n", fname);
+	    int ppmFlag = 0;
+	    char name[40];
+	    strcpy(name, fname);
+	    int slen = strlen(name);
+	    char ppmname[80];
+	    if (strncmp(name+(slen-4), ".ppm", 4) == 0)
+		ppmFlag = 1;
+	    if (ppmFlag) {
+		strcpy(ppmname, name);
+	    } else {
+		name[slen-4] = '\0';
+		//printf("name **%s**\n", name);
+		sprintf(ppmname,"%s.ppm", name);
+		//printf("ppmname **%s**\n", ppmname);
+		char ts[100];
+		//system("convert img.jpg img.ppm");
+		sprintf(ts, "convert %s %s", fname, ppmname);
+		system(ts);
+	    }
+	    //sprintf(ts, "%s", name);
+	    FILE *fpi = fopen(ppmname, "r");
+	    if (fpi) {
+		char line[200];
+		fgets(line, 200, fpi);
+		fgets(line, 200, fpi);
+		//skip comments and blank lines
+		while (line[0] == '#' || strlen(line) < 2)
+		    fgets(line, 200, fpi);
+		sscanf(line, "%i %i", &width, &height);
+		fgets(line, 200, fpi);
+		//get pixel data
+		int n = width * height * 3;			
+		data = new unsigned char[n];			
+		for (int i=0; i<n; i++)
+		    data[i] = fgetc(fpi);
+		fclose(fpi);
+	    } else {
+		printf("ERROR opening image: %s\n",ppmname);
+		exit(0);
+	    }
+	    if (!ppmFlag)
+		unlink(ppmname);
+	}
 };
 Image img[1] = {"./images/dirt.gif" };
 Image img2[1] = {"./images/credits.gif" };
 Image img3[1] = {"./images/rat1.gif" };
 
+
 struct Global {
-    int flag = 0;
-    int player_flag = 0;
     int xres, yres;
     Grid grid[MAX_GRID][MAX_GRID];
     Snake snake;
-    Snake2 snake2;
-    //made a struct in rcorona.h file
-    Ai_snake com_snake;
+    Snake snake2;
     Rat rat;
     int gridDim;
     int boardDim;
@@ -179,7 +177,6 @@ struct Global {
     Image *marbleImage;
     Image *snakeImage;
     Image *creditsImage;
-    Image *gameoverImage;
     GLuint marbleTexture;
     //Mouse Texture -- Needs to be renamed
     GLuint snakeTexture;
@@ -204,8 +201,8 @@ struct Global {
 
 class X11_wrapper {
     private:
-        Display *dpy;
-        Window win;
+	Display *dpy;
+	Window win;
     public:
 	X11_wrapper() {
 	    GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
@@ -311,7 +308,7 @@ double physicsCountdown = 0.0;
 double timeSpan = 0.0;
 double timeDiff(struct timespec *start, struct timespec *end) {
     return (double)(end->tv_sec - start->tv_sec ) +
-        (double)(end->tv_nsec - start->tv_nsec) * oobillion;
+	(double)(end->tv_nsec - start->tv_nsec) * oobillion;
 }
 void timeCopy(struct timespec *dest, struct timespec *source) {
     memcpy(dest, source, sizeof(struct timespec));
@@ -333,42 +330,42 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_REALTIME, &timeStart);
     //int done = 0;
     while (g.done == 0) {
-        while (x11.getXPending()) {
-            XEvent e = x11.getXNextEvent();
-            x11.checkResize(&e);
-            g.done = checkMouse(&e);
-            if (g.done == 1)
-                g.done = g.done;
-            else	    
-                g.done = checkKeys(&e);
-        }
-        //
-        //Below is a process to apply physics at a consistent rate.
-        //1. Get the time right now.
-        clock_gettime(CLOCK_REALTIME, &timeCurrent);
-        //2. How long since we were here last?
-        timeSpan = timeDiff(&timeStart, &timeCurrent);
-        //3. Save the current time as our new starting time.
-        timeCopy(&timeStart, &timeCurrent);
-        //4. Add time-span to our countdown amount.
-        physicsCountdown += timeSpan;
-        //5. Has countdown gone beyond our physics rate? 
-        //       if yes,
-        //           In a loop...
-        //              Apply physics
-        //              Reducing countdown by physics-rate.
-        //              Break when countdown < physics-rate.
-        //       if no,
-        //           Apply no physics this frame.
-        while(physicsCountdown >= physicsRate) {
-            //6. Apply physics
-            physics();
-            //7. Reduce the countdown by our physics-rate
-            physicsCountdown -= physicsRate;
-        }
-        //Always render every frame.
-        render();
-        x11.swapBuffers();
+	while (x11.getXPending()) {
+	    XEvent e = x11.getXNextEvent();
+	    x11.checkResize(&e);
+	    g.done = checkMouse(&e);
+	    if (g.done == 1)
+		g.done = g.done;
+	    else	    
+		g.done = checkKeys(&e);
+	}
+	//
+	//Below is a process to apply physics at a consistent rate.
+	//1. Get the time right now.
+	clock_gettime(CLOCK_REALTIME, &timeCurrent);
+	//2. How long since we were here last?
+	timeSpan = timeDiff(&timeStart, &timeCurrent);
+	//3. Save the current time as our new starting time.
+	timeCopy(&timeStart, &timeCurrent);
+	//4. Add time-span to our countdown amount.
+	physicsCountdown += timeSpan;
+	//5. Has countdown gone beyond our physics rate? 
+	//       if yes,
+	//           In a loop...
+	//              Apply physics
+	//              Reducing countdown by physics-rate.
+	//              Break when countdown < physics-rate.
+	//       if no,
+	//           Apply no physics this frame.
+	while(physicsCountdown >= physicsRate) {
+	    //6. Apply physics
+	    physics();
+	    //7. Reduce the countdown by our physics-rate
+	    physicsCountdown -= physicsRate;
+	}
+	//Always render every frame.
+	render();
+	x11.swapBuffers();
     }
     cleanupSound();
     cleanup_fonts();
@@ -381,8 +378,8 @@ void initSound()
 #ifdef USE_OPENAL_SOUND
     alutInit(0, NULL);
     if (alGetError() != AL_NO_ERROR) {
-        printf("ERROR: alutInit()\n");
-        return;
+	printf("ERROR: alutInit()\n");
+	return;
     }
     //Clear error state.
     alGetError();
@@ -407,8 +404,8 @@ void initSound()
     alSourcef(g.alSourceDrip, AL_PITCH, 1.0f);
     alSourcei(g.alSourceDrip, AL_LOOPING, AL_FALSE);
     if (alGetError() != AL_NO_ERROR) {
-        printf("ERROR: setting source\n");
-        return;
+	printf("ERROR: setting source\n");
+	return;
     }
     //Generate a source, and store it in a buffer.
     alGenSources(1, &g.alSourceTick);
@@ -418,8 +415,8 @@ void initSound()
     alSourcef(g.alSourceTick, AL_PITCH, 1.0f);
     alSourcei(g.alSourceTick, AL_LOOPING, AL_FALSE);
     if (alGetError() != AL_NO_ERROR) {
-        printf("ERROR: setting source\n");
-        return;
+	printf("ERROR: setting source\n");
+	return;
     }
 #endif //USE_OPENAL_SOUND
 }
@@ -497,6 +494,7 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
 	    g.snakeImage->width, g.snakeImage->height,
 	    0, GL_RGB, GL_UNSIGNED_BYTE, g.snakeImage->data);
+
 }
 
 void initSnake()
@@ -519,19 +517,6 @@ void initSnake()
 	g.snake2.pos[i][1] = 30;
     }
     g.snake2.direction = DIRECTION_LEFT;
-
-    //postion for ai snake
-    if (computer_snake(g.flag))
-    {
-        g.com_snake.status = 1;
-        g.com_snake.delay = .15;
-        g.com_snake.length = 5;
-        for (i=0; i<g.com_snake.length; i++) {
-            g.com_snake.pos[i][0] = 38;
-            g.com_snake.pos[i][1] = 38;
-        }
-        g.com_snake.direction = DIRECTION_LEFT;
-    }
 }
 
 void initRat()
@@ -556,13 +541,13 @@ void init()
     g.button[g.nbuttons].r.left = 20;
     g.button[g.nbuttons].r.bot = 320;
     g.button[g.nbuttons].r.right =
-        g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
+	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
     g.button[g.nbuttons].r.top =
-        g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.height;
+	g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.height;
     g.button[g.nbuttons].r.centerx =
-        (g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.right) / 2;
+	(g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.right) / 2;
     g.button[g.nbuttons].r.centery =
-        (g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.top) / 2;
+	(g.button[g.nbuttons].r.bot + g.button[g.nbuttons].r.top) / 2;
     strcpy(g.button[g.nbuttons].text, "r to Reset");
     g.button[g.nbuttons].down = 0;
     g.button[g.nbuttons].click = 0;
@@ -574,45 +559,19 @@ void init()
     g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
     g.button[g.nbuttons].text_color = 0x00ffffff;
     g.nbuttons++;
-    //second button to quit
-    g.button[g.nbuttons].r.width = 140;
-    g.button[g.nbuttons].r.height = 60;
-    g.button[g.nbuttons].r.left = 20;
-    g.button[g.nbuttons].r.bot = 520;
-    g.button[g.nbuttons].r.right =
-        g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
-    g.button[g.nbuttons].r.top = g.button[g.nbuttons].r.bot +
-        g.button[g.nbuttons].r.height;
-    g.button[g.nbuttons].r.centerx = (g.button[g.nbuttons].r.left +
-            g.button[g.nbuttons].r.right) / 2;
-    g.button[g.nbuttons].r.centery = (g.button[g.nbuttons].r.bot +
-            g.button[g.nbuttons].r.top) / 2;
-    strcpy(g.button[g.nbuttons].text, " Esc to Quit");
-    g.button[g.nbuttons].down = 0;
-    g.button[g.nbuttons].click = 0;
-    g.button[g.nbuttons].color[0] = 0.3f;
-    g.button[g.nbuttons].color[1] = 0.3f;
-    g.button[g.nbuttons].color[2] = 0.6f;
-    g.button[g.nbuttons].dcolor[0] = g.button[g.nbuttons].color[0] * 0.5f;
-    g.button[g.nbuttons].dcolor[1] = g.button[g.nbuttons].color[1] * 0.5f;
-    g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
-    g.button[g.nbuttons].text_color = 0x00ffffff;
-    g.nbuttons++;
-
-    //button for computer vs player
     g.button[g.nbuttons].r.width = 140;
     g.button[g.nbuttons].r.height = 60;
     g.button[g.nbuttons].r.left = 20;
     g.button[g.nbuttons].r.bot = 160;
     g.button[g.nbuttons].r.right =
-        g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
+	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
     g.button[g.nbuttons].r.top = g.button[g.nbuttons].r.bot +
-        g.button[g.nbuttons].r.height;
+	g.button[g.nbuttons].r.height;
     g.button[g.nbuttons].r.centerx = (g.button[g.nbuttons].r.left +
-            g.button[g.nbuttons].r.right) / 2;
+	    g.button[g.nbuttons].r.right) / 2;
     g.button[g.nbuttons].r.centery = (g.button[g.nbuttons].r.bot +
-            g.button[g.nbuttons].r.top) / 2;
-    strcpy(g.button[g.nbuttons].text, " com vs player");
+	    g.button[g.nbuttons].r.top) / 2;
+    strcpy(g.button[g.nbuttons].text, " Esc to Quit");
     g.button[g.nbuttons].down = 0;
     g.button[g.nbuttons].click = 0;
     g.button[g.nbuttons].color[0] = 0.3f;
@@ -631,31 +590,27 @@ void resetGame()
     initRat();
     g.gameover  = 0;
     g.winner    = 0;
-    g.player_flag = 0;
-    g.flag = 0;
 }
 extern int show_power_up(int[]);
 extern int help_screen(int,int);
-
 extern int my_name();
-extern int name();
-//extern int name3();
+extern int name3();
 extern int show_my_name();
 extern int name5();
 int checkKeys(XEvent *e)
 {
     static int shift=0;
     if (e->type != KeyRelease && e->type != KeyPress)
-        return 0;
+	return 0;
     int key = (XLookupKeysym(&e->xkey, 0) & 0x0000ffff);
     if (e->type == KeyRelease) {
-        if (key == XK_Shift_L || key == XK_Shift_R)
-            shift=0;
-        return 0;
+	if (key == XK_Shift_L || key == XK_Shift_R)
+	    shift=0;
+	return 0;
     }
     if (key == XK_Shift_L || key == XK_Shift_R) {
-        shift=1;
-        return 0;
+	shift=1;
+	return 0;
     }
     (void)shift;
     switch (key) {
@@ -680,7 +635,7 @@ int checkKeys(XEvent *e)
 	    printf("Help Screen\n");
 	    g.help ^= 1;
 	    break;
-	case XK_q: // power up mode
+	case XK_m: // power up mode
 	    printf("Power Up testing\n");
 	    g.power_up ^= 1;
 	    break;
@@ -715,14 +670,7 @@ int checkKeys(XEvent *e)
 	case XK_t:
 	    g.texture_feature ^= 1;
 	    break;
-   case XK_m:
-      g.player_flag = two_player(g.player_flag);
-      break;
-   case XK_v:
-      g.flag = computer_snake(g.flag);
-      break;    
     }
-
     return 0;
 }
 
@@ -735,55 +683,52 @@ int checkMouse(XEvent *e)
     int rbutton=0;
     //
     if (e->type == ButtonRelease)
-        return 0;
+	return 0;
     if (e->type == ButtonPress) {
-        if (e->xbutton.button==1) {
-            //Left button is down
-            lbutton=1;
-        }
-        if (e->xbutton.button==3) {
-            //Right button is down
-            rbutton=1;
-            if (rbutton){}
-        }
+	if (e->xbutton.button==1) {
+	    //Left button is down
+	    lbutton=1;
+	}
+	if (e->xbutton.button==3) {
+	    //Right button is down
+	    rbutton=1;
+	    if (rbutton){}
+	}
     }
     x = e->xbutton.x;
     y = e->xbutton.y;
     y = g.yres - y;
     if (savex != e->xbutton.x || savey != e->xbutton.y) {
-        //Mouse moved
-        savex = e->xbutton.x;
-        savey = e->xbutton.y;
+	//Mouse moved
+	savex = e->xbutton.x;
+	savey = e->xbutton.y;
     }
     for (i=0; i<g.nbuttons; i++) {
-        g.button[i].over=0;
-        if (x >= g.button[i].r.left &&
-                x <= g.button[i].r.right &&
-                y >= g.button[i].r.bot &&
-                y <= g.button[i].r.top) {
-            g.button[i].over=1;
-            if (g.button[i].over) {
-                if (lbutton) {
-                    switch (i) {
-                        case 0:
-                            resetGame();
-                            break;
-                        case 1:
-                            printf("Quit was clicked!\n");
-                            g.done = 1;
-                            return 1;
-                        case 2:
-                            computer_snake(g.flag);
-                            break;  
-                    }
-                }
-            }
-        }
+	g.button[i].over=0;
+	if (x >= g.button[i].r.left &&
+		x <= g.button[i].r.right &&
+		y >= g.button[i].r.bot &&
+		y <= g.button[i].r.top) {
+	    g.button[i].over=1;
+	    if (g.button[i].over) {
+		if (lbutton) {
+		    switch (i) {
+			case 0:
+			    resetGame();
+			    break;
+			case 1:
+			    printf("Quit was clicked!\n");
+			    g.done = 1;
+			    return 1;
+		    }
+		}
+	    }
+	}
     }
     if (g.done == 0)
-        return 0;
+	return 0;
     else
-        return 1;
+	return 1;
 
 }
 
@@ -815,53 +760,40 @@ void physics(void)
 {
     int i;
     if (g.gameover)
-        return;
-    //
-    //
-    //Is it time to move the snake?
-    static struct timespec snakeTime;
-    static int firsttime=1;
-    if (firsttime) {
-        firsttime=0;
-        clock_gettime(CLOCK_REALTIME, &snakeTime);
+	return;
+    if (g.pauseState) {
+
     }
-    struct timespec tt;
-    clock_gettime(CLOCK_REALTIME, &tt);
-    double timeSpan = timeDiff(&snakeTime, &tt);
-    if (timeSpan < g.snake.delay)
-        return;
-    if (timeSpan < g.snake2.delay)
-        return;
-    if (timeSpan < g.com_snake.delay)
-        return;
-    timeCopy(&snakeTime, &tt);
-    //
-    playSound(g.alSourceDrip);
-    //move the snake segments...
-    int headpos[2], headpos2[2], aihead[2];
-    int newpos[2], newpos2[2], ainewpos[2];
-    int oldpos[2], oldpos2[2], aioldpos[2];
-    //save the head position.
-    headpos[0] = g.snake.pos[0][0];
-    headpos[1] = g.snake.pos[0][1];
+    else {
+	//
+	//
+	//Is it time to move the snake?
+	static struct timespec snakeTime;
+	static int firsttime=1;
+	if (firsttime) {
+	    firsttime=0;
+	    clock_gettime(CLOCK_REALTIME, &snakeTime);
+	}
+	struct timespec tt;
+	clock_gettime(CLOCK_REALTIME, &tt);
+	double timeSpan = timeDiff(&snakeTime, &tt);
+	if (timeSpan < g.snake.delay)
+	    return;
+	if (timeSpan < g.snake2.delay)
+	    return;
+	timeCopy(&snakeTime, &tt);
+	//
+	playSound(g.alSourceDrip);
+	//move the snake segments...
+	int headpos[2], headpos2[2];
+	int newpos[2], newpos2[2];
+	int oldpos[2], oldpos2[2];
+	//save the head position.
+	headpos[0] = g.snake.pos[0][0];
+	headpos[1] = g.snake.pos[0][1];
+	headpos2[0] = g.snake2.pos[0][0];
+	headpos2[1] = g.snake2.pos[0][1];
 
-    headpos2[0] = g.snake2.pos[0][0];
-    headpos2[1] = g.snake2.pos[0][1];
-
-    aihead[0] = g.com_snake.pos[0][0];
-    aihead[1] = g.com_snake.pos[0][1];    
-
-    //snake logic for what direction to move
-    if (g.flag == 1){
-        if (g.rat.pos[0] < aihead[0])
-            g.com_snake.direction = DIRECTION_LEFT;
-        else if (g.rat.pos[0] > aihead[0])
-            g.com_snake.direction = DIRECTION_RIGHT;
-        else if (g.rat.pos[1] > aihead[1])
-            g.com_snake.direction = DIRECTION_DOWN;
-        else if (g.rat.pos[1] < aihead[1])
-            g.com_snake.direction = DIRECTION_UP;
-    }
 	//snake.direction:
 	//0=down
 	//1=left
@@ -1094,294 +1026,19 @@ void physics(void)
 	    return;
 	}
     }
-    if (g.player_flag == 1)
+}
+void render(void)
+{
+    if(g.showcredits == 1)
     {
-        // 2ND Snake Direction
-        switch (g.snake2.direction) {
-            case DIRECTION_DOWN:  g.snake2.pos[0][1] += 1; break;
-            case DIRECTION_LEFT:  g.snake2.pos[0][0] -= 1; break;
-            case DIRECTION_UP:    g.snake2.pos[0][1] -= 1; break;
-            case DIRECTION_RIGHT: g.snake2.pos[0][0] += 1; break;
-        }
-    } 
-    if (g.flag == 1)
-        // AI snake movement
-        ai_direction(g.com_snake.direction, g.com_snake.pos);
-
-    //self movement for snake
-    if (g.flag == 1)
+	show_credits(g.xres, g.yres);
+    }
+    else if (g.help)
     {
-        //checks if AI went off the grid
-        g.gameover = check_off_board(g.com_snake.pos, 
-                     g.gridDim, g.p1_points, g.gameover);
+	help_screen(g.xres, g.yres);
+    }
+    else {
 
-        //checks if AI cross itself
-        g.gameover = ai_cross_itself(g.com_snake.length, 
-                     g.com_snake.pos, g.p1_points, g.gameover);
-
-        // Check for AI Colliding Heads 
-        g.gameover = ai_head_collision(g.com_snake.pos, g.snake.pos, g.gameover);
-        
-        
-        //check if AI snake crosses with snake
-        g.gameover = ai_crosses_player (g.snake.length, g.com_snake.pos, 
-                                   g.snake.pos, g.gameover);
-        
-        //check if snake crosses with AI
-        g.gameover = player_crosses_ai(g.com_snake.length, g.com_snake.pos, 
-                                       g.snake.pos, g.gameover);
-        
-        ainewpos[0] = aihead[0];
-        ainewpos[1] = aihead[1];
-
-        //make AI length longer
-        ai_long_length(g.com_snake.length, aioldpos, ainewpos, g.com_snake.pos); 
-        
-        //check if computer ate rat
-        if (aihead[0] == g.rat.pos[0] && aihead[1] == g.rat.pos[1]) {
-            //yes, increase length of snake.
-            playSound(g.alSourceTick);
-            //put new segment at end of snake.
-            Log("computer ate rat. com_snake.length: %i   dir: %i\n",
-                    g.com_snake.length,g.com_snake.direction);
-            int addlength = rand() % 4 + 4;
-            for (i=0; i<addlength; i++) {
-                g.com_snake.pos[g.com_snake.length][0] = 
-                    g.com_snake.pos[g.com_snake.length-1][0];
-                g.com_snake.pos[g.com_snake.length][1] = 
-                    g.com_snake.pos[g.com_snake.length-1][1];
-                g.com_snake.length++;
-            }
-            //new position for rat...
-            int collision=0;
-            int ntries=0;
-            while (1) {
-                g.rat.pos[0] = rand() % g.gridDim;
-                g.rat.pos[1] = rand() % g.gridDim;
-                collision=0;
-                for (i=0; i<g.com_snake.length; i++) {
-                    if (g.rat.pos[0] == g.com_snake.pos[i][0] &&
-                            g.rat.pos[1] == g.com_snake.pos[i][1]) {
-                        collision=1;
-                        break;
-                    }
-                }
-                if (!collision) break;
-                if (++ntries > 1000000) break;
-            }
-            Log("new rat: %i %i\n",g.rat.pos[0],g.rat.pos[1]);
-            return;
-        }
-    }
-
-    //check for snake off board...
-    if (g.snake.pos[0][0] < 0 ||
-            g.snake.pos[0][0] > g.gridDim-1 ||
-            g.snake.pos[0][1] < 0 ||
-            g.snake.pos[0][1] > g.gridDim-1) {
-        g.gameover=1;
-        printf("\n");
-        printf("-----------------------------\n");
-        printf("Snake 1 went off the board!\n");
-        printf("Snake 2 Wins!\n");
-        printf("Player 2 has %d points\n", ++g.p2_points); 
-        printf("-----------------------------\n");
-        return;
-    }
-    if (g.player_flag == 1)
-    {
-        //check for snake2 off board...
-        if (g.snake2.pos[0][0] < 0 ||
-                g.snake2.pos[0][0] > g.gridDim-1 ||
-                g.snake2.pos[0][1] < 0 ||
-                g.snake2.pos[0][1] > g.gridDim-1) {
-            g.gameover=1;
-            printf("\n");
-            printf("-----------------------------\n");
-            printf("Snake 2 went off the board!\n");
-            printf("Snake 1 Wins!\n");
-            printf("Player 1 has %d points\n", ++g.p1_points); 
-            printf("-----------------------------\n");
-            return;
-        }
-    }
-
-    //check for snake crossing itself...
-    for (i=1; i<g.snake.length; i++) {
-        if (g.snake.pos[i][0] == g.snake.pos[0][0] &&
-                g.snake.pos[i][1] == g.snake.pos[0][1]) {
-            g.gameover=1;
-            printf("\n");
-            printf("-----------------------------\n");
-            printf("Snake 1 ate itself!\n");
-            printf("Snake 2 Wins!\n");
-            printf("Player 2 has %d points\n", ++g.p2_points); 
-            printf("-----------------------------\n");
-            return;
-        }
-    }
-
-    if (g.player_flag == 1){
-        //check for snake2 crossing itself
-        for (i=1; i<g.snake2.length; i++) {
-            if (g.snake2.pos[i][0] == g.snake2.pos[0][0] &&
-                    g.snake2.pos[i][1] == g.snake2.pos[0][1]) {
-                g.gameover=1;
-                printf("\n");
-                printf("-----------------------------\n");
-                printf("Snake 2 ate itself!\n");
-                printf("Snake 1 Wins!\n");
-                printf("Player 1 has %d points\n", ++g.p1_points); 
-                printf("-----------------------------\n");
-                return;
-            }
-        }
-    }
-    //
-    // Check for Colliding Heads
-    if (g.snake2.pos[0][0] == g.snake.pos[0][0] &&
-            g.snake2.pos[0][1] == g.snake.pos[0][1]) {
-        g.gameover=1;
-
-        printf("\n");
-        printf("-----------------------------\n");
-        printf("Snake 1 and Snake 2 killed each other!\n");
-        printf("It is a draw!!\n");
-        printf("Player 1 has %d points\n", g.p1_points); 
-        printf("Player 2 has %d points\n", g.p2_points); 
-        printf("-----------------------------\n");
-        return;
-    }
-    //check for snake crossing snake2...
-    for (i=0; i<g.snake2.length; i++) {
-        if (g.snake2.pos[i][0] == g.snake.pos[0][0] &&
-                g.snake2.pos[i][1] == g.snake.pos[0][1]) {
-            g.gameover=1;
-            printf("\n");
-            printf("-----------------------------\n");
-            printf("Snake 2 killed Snake 1!\n");
-            printf("Snake 2 Wins!\n");
-            printf("Player 2 has %d points\n", ++g.p2_points); 
-            printf("-----------------------------\n");
-            return;
-        }
-    }
-    //check for snake2 crossing snake...
-    for (i=0; i<g.snake.length; i++) {
-        if (g.snake.pos[i][0] == g.snake2.pos[0][0] &&
-                g.snake.pos[i][1] == g.snake2.pos[0][1]) {
-            g.gameover=1;
-            printf("\n");
-            printf("-----------------------------\n");
-            printf("Snake 1 killed Snake 2!\n");
-            printf("Snake 1 Wins!\n");
-            printf("Player 1 has %d points\n", ++g.p1_points); 
-            printf("-----------------------------\n");
-            return;
-        }
-    }
-    //
-    newpos[0] = headpos[0];
-    newpos[1] = headpos[1];
-
-    //2nd Snake Head Position
-    newpos2[0] = headpos2[0];
-    newpos2[1] = headpos2[1];
-
-    for (i=1; i<g.snake.length; i++) {
-        oldpos[0] = g.snake.pos[i][0];
-        oldpos[1] = g.snake.pos[i][1];
-        if (g.snake.pos[i][0] == newpos[0] &&
-                g.snake.pos[i][1] == newpos[1])
-            break;
-        g.snake.pos[i][0] = newpos[0];
-        g.snake.pos[i][1] = newpos[1];
-        newpos[0] = oldpos[0];
-        newpos[1] = oldpos[1];
-    }
-    if (g.player_flag == 1){
-        // Snake2
-        for (i=1; i<g.snake2.length; i++) {
-            oldpos2[0] = g.snake2.pos[i][0];
-            oldpos2[1] = g.snake2.pos[i][1];
-            if (g.snake2.pos[i][0] == newpos2[0] &&
-                    g.snake2.pos[i][1] == newpos2[1])
-                break;
-            g.snake2.pos[i][0] = newpos2[0];
-            g.snake2.pos[i][1] = newpos2[1];
-            newpos2[0] = oldpos2[0];
-            newpos2[1] = oldpos2[1];
-        }
-    }
-
-    //did the snake eat the rat???
-    if (headpos[0] == g.rat.pos[0] && headpos[1] == g.rat.pos[1]) {
-        //yes, increase length of snake.
-        playSound(g.alSourceTick);
-        //put new segment at end of snake.
-        Log("snake ate rat. snake.length: %i   dir: %i\n",
-                g.snake.length,g.snake.direction);
-        int addlength = rand() % 4 + 4;
-        for (i=0; i<addlength; i++) {
-            g.snake.pos[g.snake.length][0] = g.snake.pos[g.snake.length-1][0];
-            g.snake.pos[g.snake.length][1] = g.snake.pos[g.snake.length-1][1];
-            g.snake.length++;
-        }
-        //new position for rat...
-        int collision=0;
-        int ntries=0;
-        while (1) {
-            g.rat.pos[0] = rand() % g.gridDim;
-            g.rat.pos[1] = rand() % g.gridDim;
-            collision=0;
-            for (i=0; i<g.snake.length; i++) {
-                if (g.rat.pos[0] == g.snake.pos[i][0] &&
-                        g.rat.pos[1] == g.snake.pos[i][1]) {
-                    collision=1;
-                    break;
-                }
-            }
-            if (!collision) break;
-            if (++ntries > 1000000) break;
-        }
-        Log("new rat: %i %i\n",g.rat.pos[0],g.rat.pos[1]);
-        return;
-    }
-    if (g.player_flag == 1){
-        //did snake2 eat the rat???
-        if (headpos2[0] == g.rat.pos[0] && headpos2[1] == g.rat.pos[1]) {
-            //yes, increase length of snake.
-            playSound(g.alSourceTick);
-            //put new segment at end of snake.
-            Log("snake2 ate rat. snake2.length: %i   dir: %i\n",
-                    g.snake2.length,g.snake2.direction);
-            int addlength = rand() % 4 + 4;
-            for (i=0; i<addlength; i++) {
-                g.snake2.pos[g.snake2.length][0] = g.snake2.pos[g.snake2.length-1][0];
-                g.snake2.pos[g.snake2.length][1] = g.snake2.pos[g.snake2.length-1][1];
-                g.snake2.length++;
-            }
-            //new position for rat...
-            int collision=0;
-            int ntries=0;
-            while (1) {
-                g.rat.pos[0] = rand() % g.gridDim;
-                g.rat.pos[1] = rand() % g.gridDim;
-                collision=0;
-                for (i=0; i<g.snake2.length; i++) {
-                    if (g.rat.pos[0] == g.snake2.pos[i][0] &&
-                            g.rat.pos[1] == g.snake2.pos[i][1]) {
-                        collision=1;
-                        break;
-                    }
-                }
-                if (!collision) break;
-                if (++ntries > 1000000) break;
-            }
-            Log("new rat: %i %i\n",g.rat.pos[0],g.rat.pos[1]);
-            return;
-        }
-    }
 	int i,j;
 	Rect r;
 	//--------------------------------------------------------
@@ -1485,8 +1142,8 @@ void physics(void)
 	glEnd();
 	//
 #define COLORFUL_SNAKE
-            //
-            //draw snake...
+	//
+	//draw snake...
 #ifdef COLORFUL_SNAKE
 	float c[3]={1.0f,0.0,0.0};
 	float c2[3]={1.0f,0.1,1.0};
@@ -1520,40 +1177,29 @@ void physics(void)
 	    c2[2] +=	rgb2[2];
 	    glColor3fv(c2);
 	}
-#else //COLORFUL_SNAKE
-            glColor3f(1.0f, 0.0f, 0.0f);
-            glBegin(GL_QUADS);
-            for (i=0; i<g.snake.length; i++) {
-                getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
-                glVertex2i(cent[0]-4, cent[1]-3);
-                glVertex2i(cent[0]-4, cent[1]+4);
-                glVertex2i(cent[0]+3, cent[1]+4);
-                glVertex2i(cent[0]+3, cent[1]-3);
-                glColor3f(0.0f, 0.6f, 0.0f);
-            }
-            if (g.player_flag == 1){
-                for (i=0; i<g.snake2.length; i++) {
-                    getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
-                    glVertex2i(cent[0]-4, cent[1]-3);
-                    glVertex2i(cent[0]-4, cent[1]+4);
-                    glVertex2i(cent[0]+3, cent[1]+4);
-                    glVertex2i(cent[0]+3, cent[1]-3);
-                    glColor3f(0.0f, 0.6f, 0.0f);
-                }
-            }
 
-            if (g.flag == 1)
-            {
-                for (i=0; i<g.com_cnake.length; i++) {
-                    getGridCenter(g.com_snake.pos[i][1],g.com_snake.pos[i][0],cent);
-                    glVertex2i(cent[0]-4, cent[1]-3);
-                    glVertex2i(cent[0]-4, cent[1]+4);
-                    glVertex2i(cent[0]+3, cent[1]+4);
-                    glVertex2i(cent[0]+3, cent[1]-3);
-                    glColor3f(0.0f, 0.6f, 0.0f);
-                }
-            }
-            glEnd();
+	glEnd();
+#else //COLORFUL_SNAKE
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glBegin(GL_QUADS);
+	for (i=0; i<g.snake.length; i++) {
+	    getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
+	    glVertex2i(cent[0]-4, cent[1]-3);
+	    glVertex2i(cent[0]-4, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]-3);
+	    glColor3f(0.0f, 0.6f, 0.0f);
+	}
+
+	for (i=0; i<g.snake2.length; i++) {
+	    getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
+	    glVertex2i(cent[0]-4, cent[1]-3);
+	    glVertex2i(cent[0]-4, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]+4);
+	    glVertex2i(cent[0]+3, cent[1]-3);
+	    glColor3f(0.0f, 0.6f, 0.0f);
+	}
+	glEnd();
 #endif //COLORFUL_SNAKE
        //
        //
@@ -1616,3 +1262,5 @@ void physics(void)
     if (g.pauseState) {
 	show_pause_screen(g.xres, g.yres);
     }
+}
+
