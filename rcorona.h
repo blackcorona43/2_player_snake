@@ -12,7 +12,7 @@ typedef struct a_snake
     double delay;
 }Ai_snake;
 
-
+extern unsigned int gameover_screen(int gameover);
 extern unsigned int computer_snake(int check);
 extern unsigned int two_player(int check);
 extern void ai_direction (int direction, int position [][2]);
@@ -33,4 +33,3 @@ extern int player_crosses_ai(int ai_length, int ai_pos[][2],
 
 extern void ai_long_length (int ai_length, int ai_old_pos[],
         int ai_new_pos[], int ai_snake_pos[][2]);
-

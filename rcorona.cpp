@@ -1,6 +1,6 @@
 //Ruben Corona
-//2 player snake code
-//
+// AI player snake code
+// 
 #include <stdio.h>
 #include <string>
 #define MAX_GRID 80
@@ -10,8 +10,6 @@
 #define DIRECTION_LEFT   1
 #define DIRECTION_UP     2
 #define DIRECTION_RIGHT  3
-
-unsigned int gameover_screen(int);
 
 typedef struct a_snake
 {
@@ -159,4 +157,3 @@ void ai_long_length (int ai_length, int ai_old_pos[],
         }
     return;
 }
-
