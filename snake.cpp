@@ -150,7 +150,7 @@ class Image {
 	}
 };
 Image img[1] = {"./images/dirt.gif" };
-Image img2[1] = {"./images/credits.gif" };
+Image img2[1] = {"./images/grass.gif" };
 Image img3[1] = {"./images/rat1.gif" };
 Image img4[1] = {"./images/body_green.gif" };
 
@@ -177,10 +177,11 @@ struct Global {
     unsigned int power_up = 0;
     Image *marbleImage;
     Image *mouseImage;
+    Image *grassImage;
     Image *body_greenImage;
     Image *creditsImage;
     GLuint marbleTexture;
-    //Mouse Texture -- Needs to be renamed
+    GLuint grassTexture;
     GLuint mouseTexture;
     GLuint body_greenTexture;
     Button button[MAXBUTTONS];
@@ -197,6 +198,7 @@ struct Global {
 	nbuttons = 0;
 	showcredits = 0;
 	marbleImage=NULL;
+	grassImage=NULL;
 	creditsImage=NULL;
 	mouseImage=NULL;
 	body_greenImage=NULL;
@@ -486,6 +488,18 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
 	    g.marbleImage->width, g.marbleImage->height,
 	    0, GL_RGB, GL_UNSIGNED_BYTE, g.marbleImage->data);
+
+    // Grass Image
+    g.grassImage = &img2[0];
+
+    //create opengl texture elements
+    glGenTextures(1, &g.grassTexture);
+    glBindTexture(GL_TEXTURE_2D, g.grassTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+	    g.grassImage->width, g.grassImage->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, g.grassImage->data);
 
     // Mouse Image
     g.mouseImage = &img3[0];
@@ -1055,6 +1069,7 @@ void render(void)
     else {
 
 	int i,j;
+	int pixel = 16;
 	Rect r;
 	//--------------------------------------------------------
 	//This code is repeated several times in this program, so
@@ -1126,14 +1141,18 @@ void render(void)
 	    }
 	}
 	//draw the main game board in middle of screen
-	glColor3f(0.2f, 0.2f, 0.2f);
+/*	glColor3f(0.2f, 0.2f, 0.2f);
 	glBegin(GL_QUADS);
 	glVertex2i(s0-b2, s1-b2);
 	glVertex2i(s0-b2, s1+b2);
 	glVertex2i(s0+b2, s1+b2);
 	glVertex2i(s0+b2, s1-b2);
 	glEnd();
-	//
+*/	//	
+	getGridCenter(g.gridDim/2 - .75,g.gridDim/2 - .75,cent);
+	game_Texture(g.grassTexture, cent, 506);
+
+
 	//grid lines...
 	int x0 = s0-b2;
 	int x1 = s0+b2;
@@ -1174,15 +1193,22 @@ void render(void)
 	for (i=0; i<g.snake.length; i++) {
 	    getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
 	    if (g.snake.pos[0][0]) {
-		game_Texture(g.mouseTexture, cent);
+	    	game_Texture(g.marbleTexture, cent, pixel);
+	    }
+	    if (i == 0) {
+	    	game_Texture(g.mouseTexture, cent, pixel);
 	    }
 	    else
-	    	game_Texture(g.body_greenTexture, cent);
+	    	game_Texture(g.body_greenTexture, cent, pixel);
 	}
 	//2ND Snake
 	for (i=0; i<g.snake2.length; i++) {
 	    getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
-	    game_Texture(g.body_greenTexture, cent);
+	    if (i == 0) {
+	    	game_Texture(g.grassTexture, cent, pixel);
+	    }
+	    else
+	    	game_Texture(g.body_greenTexture, cent, pixel);
 	}
 
 	glEnd();
@@ -1260,8 +1286,9 @@ void render(void)
 	    glEnd();
 	    glDisable(GL_BLEND);
 
-	    game_Texture(g.mouseTexture, cent);
+	    game_Texture(g.mouseTexture, cent, pixel);
 	}
+
     }
 
 
