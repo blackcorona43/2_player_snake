@@ -192,7 +192,7 @@ struct Global {
     Global() {
 	xres = 2400;
 	yres = 1800;
-	gridDim = 32;
+	gridDim = 35;
 	gameover = 0;
 	winner = 0;
 	nbuttons = 0;
@@ -542,8 +542,8 @@ void initSnake()
     g.snake2.delay = .15;
     g.snake2.length = 5;
     for (i=0; i<g.snake2.length; i++) {
-	g.snake2.pos[i][0] = 30;
-	g.snake2.pos[i][1] = 30;
+	g.snake2.pos[i][0] = 33;
+	g.snake2.pos[i][1] = 33;
     }
     g.snake2.direction = DIRECTION_LEFT;
 }
@@ -557,7 +557,7 @@ void initRat()
 
 void init()
 {
-    g.boardDim = g.gridDim * 32;
+    g.boardDim = g.gridDim * 35;
     //
     initSnake();
     initRat();
@@ -1149,8 +1149,8 @@ void render(void)
 	glVertex2i(s0+b2, s1-b2);
 	glEnd();
 */	//	
-	getGridCenter(g.gridDim/2 - .75,g.gridDim/2 - .75,cent);
-	game_Texture(g.grassTexture, cent, 506);
+	getGridCenter(g.gridDim/2 , g.gridDim/2 , cent);
+	game_Texture(g.marbleTexture, cent, 612.5);
 
 
 	//grid lines...
@@ -1161,7 +1161,7 @@ void render(void)
 	glColor3f(0.1f, 0.1f, 0.1f);
 	glBegin(GL_LINES);
 	for (i=1; i<g.gridDim; i++) {
-	    y0 += 32;
+	    y0 += 35;
 	    glVertex2i(x0,y0);
 	    glVertex2i(x1,y0);
 	}
@@ -1169,7 +1169,7 @@ void render(void)
 	y0 = s1-b2;
 	y1 = s1+b2;
 	for (j=1; j<g.gridDim; j++) {
-	    x0 += 32;
+	    x0 += 35;
 	    glVertex2i(x0,y0);
 	    glVertex2i(x0,y1);
 	}
@@ -1199,7 +1199,7 @@ void render(void)
 	    	game_Texture(g.mouseTexture, cent, pixel);
 	    }
 	    else
-	    	game_Texture(g.body_greenTexture, cent, pixel);
+	    	game_Texture(g.mouseTexture, cent, pixel);
 	}
 	//2ND Snake
 	for (i=0; i<g.snake2.length; i++) {
@@ -1208,7 +1208,7 @@ void render(void)
 	    	game_Texture(g.grassTexture, cent, pixel);
 	    }
 	    else
-	    	game_Texture(g.body_greenTexture, cent, pixel);
+	    	game_Texture(g.mouseTexture, cent, pixel);
 	}
 
 	glEnd();
