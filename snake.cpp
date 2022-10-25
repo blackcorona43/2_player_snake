@@ -62,8 +62,6 @@
 #define DIRECTION_RIGHT 3
 //
 #define MAX_GRID 80
-
-void reset_screen();
 typedef struct t_grid {
     int status;
     float color[4];
@@ -161,16 +159,14 @@ struct Global {
     Grid grid[MAX_GRID][MAX_GRID];
     Snake snake;
     Snake snake2;
-    Ai_snake com_snake;
     Rat rat;
-    unsigned int flag = 0;
-    unsigned int player_flag = 0;
     int gridDim;
     int boardDim;
     int gameover;
     int winner;
     int done = 0;
     unsigned int showcredits;
+    unsigned int st_feature; //CHANGE
     int size = 16;
     unsigned int texture_feature = 0;
     int pauseState = 0;
@@ -522,17 +518,6 @@ void initSnake()
 	g.snake2.pos[i][1] = 30;
     }
     g.snake2.direction = DIRECTION_LEFT;
-
-    if (computer_snake(g.flag)) {
-	g.com_snake.status = 1;
-	g.com_snake.delay = .15;
-	g.com_snake.length = 5;
-	for (i=0; i < g.com_snake.length; i++) {
-	    g.com_snake.pos[i][0] = 30;
-	    g.com_snake.pos[i][1] = 30;
-	}
-	g.com_snake.direction = DIRECTION_LEFT;
-    }
 }
 
 void initRat()
@@ -606,9 +591,6 @@ void resetGame()
     initRat();
     g.gameover  = 0;
     g.winner    = 0;
-    g.player_flag = 0;
-    g.flag = 0;
-    g.gameover = 0;
 }
 extern int show_power_up(int[]);
 extern int help_screen(int,int);
@@ -634,15 +616,12 @@ int checkKeys(XEvent *e)
     (void)shift;
     switch (key) {
 	case XK_r:
-	    printf("Reset Game\n");
 	    resetGame();
 	    break;
 	case XK_Escape:// Escape to quit game
 	    g.done = 1;
-	    printf("Quit Game\n");
 	    return 1;
 	case XK_c:// open/close credits page
-	    printf("Credits Screen\n");
 	    g.showcredits = manage_state_st(g.showcredits);
 	    break;
 	case XK_equal:
@@ -657,8 +636,8 @@ int checkKeys(XEvent *e)
 	    printf("Help Screen\n");
 	    g.help ^= 1;
 	    break;
-	case XK_l: // length power up
-	    printf("Length Power Up testing\n");
+	case XK_m: // power up mode
+	    printf("Power Up testing\n");
 	    g.power_up ^= 1;
 	    break;
 	case XK_a:
@@ -692,12 +671,9 @@ int checkKeys(XEvent *e)
 	case XK_t:
 	    g.texture_feature ^= 1;
 	    break;
-	case XK_q:
-	    g.player_flag = two_player(g.player_flag);
+	case XK_n:
+	    g.st_feature = manage_state_st(g.st_feature);
 	    break;
-	case XK_v:
-	    g.flag = computer_snake(g.flag);
-	    break;    
     }
     return 0;
 }
@@ -813,83 +789,14 @@ void physics(void)
 	//
 	playSound(g.alSourceDrip);
 	//move the snake segments...
-	int headpos[2], headpos2[2], aihead[2];
-	int newpos[2], newpos2[2], ainewpos[2];
-	int oldpos[2], oldpos2[2], aioldpos[2];
+	int headpos[2], headpos2[2];
+	int newpos[2], newpos2[2];
+	int oldpos[2], oldpos2[2];
 	//save the head position.
 	headpos[0] = g.snake.pos[0][0];
 	headpos[1] = g.snake.pos[0][1];
 	headpos2[0] = g.snake2.pos[0][0];
 	headpos2[1] = g.snake2.pos[0][1];
-	aihead[0] = g.com_snake.pos[0][0];
-	aihead[1] = g.com_snake.pos[0][1];
-
-	if (g.flag == 1){
-	    //does the logic of what direction to move
-	    if (g.rat.pos[0] < aihead[0])
-		g.com_snake.direction = DIRECTION_LEFT;
-	    else if (g.rat.pos[0] > aihead[0])
-		g.com_snake.direction = DIRECTION_RIGHT;
-	    else if (g.rat.pos[1] > aihead[1])
-		g.com_snake.direction = DIRECTION_DOWN;
-	    else if (g.rat.pos[1] < aihead[1])
-		g.com_snake.direction = DIRECTION_UP;
-	    //does the self move
-	    ai_direction(g.com_snake.direction, g.com_snake.pos);
-	    //checks if AI went out of bounds
-	    g.gameover = check_off_board(g.com_snake.pos, g.gridDim, 
-		    g.p1_points, g.gameover);
-	    //AI crosses itself
-	    g.gameover = ai_cross_itself(g.com_snake.length,
-		    g.com_snake.pos, g.p1_points, g.gameover);
-	    //Check for AI Colliding heads
-	    g.gameover = ai_crosses_player (g.snake.length, g.com_snake.pos,
-		    g.snake.pos, g.gameover);
-	    //check if player crosses AI
-	    g.gameover = player_crosses_ai(g.com_snake.length, g.com_snake.pos, 
-		    g.snake.pos, g.gameover);
-
-	    ainewpos[0] = aihead[0];
-	    ainewpos[1] = aihead[1];
-	    //makes the snake linger
-	    ai_long_length(g.com_snake.length, aioldpos, ainewpos, g.com_snake.pos);
-
-	    //check if computer ate the rat
-	    if (aihead[0] == g.rat.pos[0] && aihead[1] == g.rat.pos[1])
-	    {
-		playSound(g.alSourceTick);
-		Log("COMPUTER ate the Rat. com_snake.length: %i dir: %i\n",
-			g.com_snake.length, g.com_snake.direction);
-		int addlength = rand() % 4 + 4;
-		for (i=0; i < addlength; i++) {
-		    g.com_snake.pos[g.com_snake.length][0] =
-			g.com_snake.pos[g.com_snake.length-1][0];
-		    g.com_snake.pos[g.com_snake.length][1] =
-			g.com_snake.pos[g.com_snake.length-1][1];
-		    g.com_snake.length++; 
-		}
-		int collision = 0;
-		int ntries = 0;
-		while(1) {
-		    g.rat.pos[0] = rand() % g.gridDim;
-		    g.rat.pos[1] = rand() % g.gridDim;
-		    collision = 0;
-		    for (i=0; i < g.com_snake.length; i++){
-			if (g.rat.pos[0] == g.com_snake.pos[i][0] &&
-				g.rat.pos[0] == g.com_snake.pos[i][0] &&
-				g.rat.pos[1] == g.com_snake.pos[i][1]){ 
-			    collision=1;
-			    break;
-			}
-		    }
-		    if (!collision) break;
-		    if (++ntries > 1000000) break;
-		}
-		Log("new rat: %i %i\n",g.rat.pos[0],g.rat.pos[1]);
-		return;
-	    }
-	}
-
 
 	//snake.direction:
 	//0=down
@@ -902,87 +809,73 @@ void physics(void)
 	    case DIRECTION_UP:    g.snake.pos[0][1] -= 1; break;
 	    case DIRECTION_RIGHT: g.snake.pos[0][0] += 1; break;
 	}
-
-	if (g.player_flag == 1) {
-	    // 2ND Snake Direction
-	    switch (g.snake2.direction) {
-		case DIRECTION_DOWN:  g.snake2.pos[0][1] += 1; break;
-		case DIRECTION_LEFT:  g.snake2.pos[0][0] -= 1; break;
-		case DIRECTION_UP:    g.snake2.pos[0][1] -= 1; break;
-		case DIRECTION_RIGHT: g.snake2.pos[0][0] += 1; break;
-	    }
+	// 2ND Snake Direction
+	switch (g.snake2.direction) {
+	    case DIRECTION_DOWN:  g.snake2.pos[0][1] += 1; break;
+	    case DIRECTION_LEFT:  g.snake2.pos[0][0] -= 1; break;
+	    case DIRECTION_UP:    g.snake2.pos[0][1] -= 1; break;
+	    case DIRECTION_RIGHT: g.snake2.pos[0][0] += 1; break;
 	}
 	//check for snake off board...
 	if (g.snake.pos[0][0] < 0 ||
 		g.snake.pos[0][0] > g.gridDim-1 ||
 		g.snake.pos[0][1] < 0 ||
 		g.snake.pos[0][1] > g.gridDim-1) {
-		g.p2_points += 20;
 	    g.gameover=1;
 	    printf("\n");
 	    printf("-----------------------------\n");
 	    printf("Snake 1 went off the board!\n");
 	    printf("Snake 2 Wins!\n");
-	    printf("Player 2 has %d points\n", g.p2_points); 
+	    printf("Player 2 has %d points\n", ++g.p2_points); 
 	    printf("-----------------------------\n");
 	    return;
 	}
-	if (g.player_flag == 1) {
-	    //check for snake2 off board...
-	    if (g.snake2.pos[0][0] < 0 ||
-		    g.snake2.pos[0][0] > g.gridDim-1 ||
-		    g.snake2.pos[0][1] < 0 ||
-		    g.snake2.pos[0][1] > g.gridDim-1) {
-		g.p1_points += 20;
-		g.gameover=1;
-		printf("\n");
-		printf("-----------------------------\n");
-		printf("Snake 2 went off the board!\n");
-		printf("Snake 1 Wins!\n");
-		printf("Player 1 has %d points\n", g.p1_points); 
-		printf("-----------------------------\n");
-		return;
-	    }
+	//check for snake2 off board...
+	if (g.snake2.pos[0][0] < 0 ||
+		g.snake2.pos[0][0] > g.gridDim-1 ||
+		g.snake2.pos[0][1] < 0 ||
+		g.snake2.pos[0][1] > g.gridDim-1) {
+	    g.gameover=1;
+	    printf("\n");
+	    printf("-----------------------------\n");
+	    printf("Snake 2 went off the board!\n");
+	    printf("Snake 1 Wins!\n");
+	    printf("Player 1 has %d points\n", ++g.p1_points); 
+	    printf("-----------------------------\n");
+	    return;
 	}
 	//check for snake crossing itself...
 	for (i=1; i<g.snake.length; i++) {
 	    if (g.snake.pos[i][0] == g.snake.pos[0][0] &&
 		    g.snake.pos[i][1] == g.snake.pos[0][1]) {
-
-		g.p2_points += 20;
 		g.gameover=1;
 		printf("\n");
 		printf("-----------------------------\n");
 		printf("Snake 1 ate itself!\n");
 		printf("Snake 2 Wins!\n");
-		printf("Player 2 has %d points\n", g.p2_points); 
+		printf("Player 2 has %d points\n", ++g.p2_points); 
 		printf("-----------------------------\n");
 		return;
 	    }
 	}
-	if (g.player_flag == 1){
-	    //check for snake2 crossing itself
-	    for (i=1; i<g.snake2.length; i++) {
-		if (g.snake2.pos[i][0] == g.snake2.pos[0][0] &&
-			g.snake2.pos[i][1] == g.snake2.pos[0][1]) {
-		g.p1_points += 20;
-		    g.gameover=1;
-		    printf("\n");
-		    printf("-----------------------------\n");
-		    printf("Snake 2 ate itself!\n");
-		    printf("Snake 1 Wins!\n");
-		    printf("Player 1 has %d points\n", g.p1_points); 
-		    printf("-----------------------------\n");
-		    return;
-		}
+	//check for snake2 crossing itself
+	for (i=1; i<g.snake2.length; i++) {
+	    if (g.snake2.pos[i][0] == g.snake2.pos[0][0] &&
+		    g.snake2.pos[i][1] == g.snake2.pos[0][1]) {
+		g.gameover=1;
+		printf("\n");
+		printf("-----------------------------\n");
+		printf("Snake 2 ate itself!\n");
+		printf("Snake 1 Wins!\n");
+		printf("Player 1 has %d points\n", ++g.p1_points); 
+		printf("-----------------------------\n");
+		return;
 	    }
 	}
 	//
 	// Check for Colliding Heads
 	if (g.snake2.pos[0][0] == g.snake.pos[0][0] &&
 		g.snake2.pos[0][1] == g.snake.pos[0][1]) {
-		g.p1_points += 20;
-		g.p2_points += 20;
 	    g.gameover=1;
 	    printf("\n");
 	    printf("-----------------------------\n");
@@ -997,13 +890,12 @@ void physics(void)
 	for (i=0; i<g.snake2.length; i++) {
 	    if (g.snake2.pos[i][0] == g.snake.pos[0][0] &&
 		    g.snake2.pos[i][1] == g.snake.pos[0][1]) {
-		g.p2_points += 20;
 		g.gameover=1;
 		printf("\n");
 		printf("-----------------------------\n");
 		printf("Snake 2 killed Snake 1!\n");
 		printf("Snake 2 Wins!\n");
-		printf("Player 2 has %d points\n", g.p2_points); 
+		printf("Player 2 has %d points\n", ++g.p2_points); 
 		printf("-----------------------------\n");
 		return;
 	    }
@@ -1012,13 +904,12 @@ void physics(void)
 	for (i=0; i<g.snake.length; i++) {
 	    if (g.snake.pos[i][0] == g.snake2.pos[0][0] &&
 		    g.snake.pos[i][1] == g.snake2.pos[0][1]) {
-		g.p1_points += 20;
 		g.gameover=1;
 		printf("\n");
 		printf("-----------------------------\n");
 		printf("Snake 1 killed Snake 2!\n");
 		printf("Snake 1 Wins!\n");
-		printf("Player 1 has %d points\n", g.p1_points); 
+		printf("Player 1 has %d points\n", ++g.p1_points); 
 		printf("-----------------------------\n");
 		return;
 	    }
@@ -1041,19 +932,17 @@ void physics(void)
 	    newpos[0] = oldpos[0];
 	    newpos[1] = oldpos[1];
 	}
-	if (g.player_flag == 1) {
-	    // Snake2
-	    for (i=1; i<g.snake2.length; i++) {
-		oldpos2[0] = g.snake2.pos[i][0];
-		oldpos2[1] = g.snake2.pos[i][1];
-		if (g.snake2.pos[i][0] == newpos2[0] &&
-			g.snake2.pos[i][1] == newpos2[1])
-		    break;
-		g.snake2.pos[i][0] = newpos2[0];
-		g.snake2.pos[i][1] = newpos2[1];
-		newpos2[0] = oldpos2[0];
-		newpos2[1] = oldpos2[1];
-	    }
+	// Snake2
+	for (i=1; i<g.snake2.length; i++) {
+	    oldpos2[0] = g.snake2.pos[i][0];
+	    oldpos2[1] = g.snake2.pos[i][1];
+	    if (g.snake2.pos[i][0] == newpos2[0] &&
+		    g.snake2.pos[i][1] == newpos2[1])
+		break;
+	    g.snake2.pos[i][0] = newpos2[0];
+	    g.snake2.pos[i][1] = newpos2[1];
+	    newpos2[0] = oldpos2[0];
+	    newpos2[1] = oldpos2[1];
 	}
 	//did the snake eat the rat???
 	if (headpos[0] == g.rat.pos[0] && headpos[1] == g.rat.pos[1]) {
@@ -1061,10 +950,8 @@ void physics(void)
 	    {
 		int addlength = rand() % 4 + 25;
 		for (i=0; i<addlength; i++) {
-		    g.snake.pos[g.snake.length][0] = 
-			g.snake.pos[g.snake.length-1][0];
-		    g.snake.pos[g.snake.length][1] = 
-			g.snake.pos[g.snake.length-1][1];
+		    g.snake.pos[g.snake.length][0] = g.snake.pos[g.snake.length-1][0];
+		    g.snake.pos[g.snake.length][1] = g.snake.pos[g.snake.length-1][1];
 		    g.snake.length++;
 		}
 
@@ -1076,16 +963,13 @@ void physics(void)
 		    g.snake.length,g.snake.direction);
 	    int addlength = rand() % 4 + 4;
 	    for (i=0; i<addlength; i++) {
-		g.snake.pos[g.snake.length][0] = 
-		    g.snake.pos[g.snake.length-1][0];
-		g.snake.pos[g.snake.length][1] = 
-		    g.snake.pos[g.snake.length-1][1];
+		g.snake.pos[g.snake.length][0] = g.snake.pos[g.snake.length-1][0];
+		g.snake.pos[g.snake.length][1] = g.snake.pos[g.snake.length-1][1];
 		g.snake.length++;
 	    }
 	    //new position for rat...
 	    int collision=0;
 	    int ntries=0;
-	    g.p1_points += 5;
 	    while (1) {
 		g.rat.pos[0] = rand() % g.gridDim;
 		g.rat.pos[1] = rand() % g.gridDim;
@@ -1103,88 +987,59 @@ void physics(void)
 	    Log("new rat: %i %i\n",g.rat.pos[0],g.rat.pos[1]);
 	    return;
 	}
-	if (g.player_flag == 1) {
-	    //did snake2 eat the rat???
-	    if (headpos2[0] == g.rat.pos[0] && headpos2[1] == g.rat.pos[1]) {
-		if (g.power_up) {
-		    int addlength = rand() % 4 + 25;
-		    for (i=0; i<addlength; i++) {
-			g.snake2.pos[g.snake2.length][0] = 
-			    g.snake2.pos[g.snake2.length-1][0];
-			g.snake2.pos[g.snake2.length][1] = 
-			    g.snake2.pos[g.snake2.length-1][1];
-			g.snake2.length++;
-		    }
-
-		}
-		//yes, increase length of snake.
-		playSound(g.alSourceTick);
-		//put new segment at end of snake.
-		Log("snake2 ate rat. snake2.length: %i   dir: %i\n",
-			g.snake2.length,g.snake2.direction);
-		int addlength = rand() % 4 + 4;
+	//did snake2 eat the rat???
+	if (headpos2[0] == g.rat.pos[0] && headpos2[1] == g.rat.pos[1]) {
+	    if (g.power_up) {
+		int addlength = rand() % 4 + 25;
 		for (i=0; i<addlength; i++) {
-		    g.snake2.pos[g.snake2.length][0] = 
-			g.snake2.pos[g.snake2.length-1][0];
-		    g.snake2.pos[g.snake2.length][1] = 
-			g.snake2.pos[g.snake2.length-1][1];
+		    g.snake2.pos[g.snake2.length][0] = g.snake2.pos[g.snake2.length-1][0];
+		    g.snake2.pos[g.snake2.length][1] = g.snake2.pos[g.snake2.length-1][1];
 		    g.snake2.length++;
 		}
-		//new position for rat...
-		int collision=0;
-		int ntries=0;
-		g.p2_points += 5;
-		while (1) {
-		    g.rat.pos[0] = rand() % g.gridDim;
-		    g.rat.pos[1] = rand() % g.gridDim;
-		    collision=0;
-		    for (i=0; i<g.snake2.length; i++) {
-			if (g.rat.pos[0] == g.snake2.pos[i][0] &&
-				g.rat.pos[1] == g.snake2.pos[i][1]) {
-			    collision=1;
-			    break;
-			}
-		    }
-		    if (!collision) break;
-		    if (++ntries > 1000000) break;
-		}
-		Log("new rat: %i %i\n",g.rat.pos[0],g.rat.pos[1]);
-		return;
+
 	    }
+	    //yes, increase length of snake.
+	    playSound(g.alSourceTick);
+	    //put new segment at end of snake.
+	    Log("snake2 ate rat. snake2.length: %i   dir: %i\n",
+		    g.snake2.length,g.snake2.direction);
+	    int addlength = rand() % 4 + 4;
+	    for (i=0; i<addlength; i++) {
+		g.snake2.pos[g.snake2.length][0] = g.snake2.pos[g.snake2.length-1][0];
+		g.snake2.pos[g.snake2.length][1] = g.snake2.pos[g.snake2.length-1][1];
+		g.snake2.length++;
+	    }
+	    //new position for rat...
+	    int collision=0;
+	    int ntries=0;
+	    while (1) {
+		g.rat.pos[0] = rand() % g.gridDim;
+		g.rat.pos[1] = rand() % g.gridDim;
+		collision=0;
+		for (i=0; i<g.snake2.length; i++) {
+		    if (g.rat.pos[0] == g.snake2.pos[i][0] &&
+			    g.rat.pos[1] == g.snake2.pos[i][1]) {
+			collision=1;
+			break;
+		    }
+		}
+		if (!collision) break;
+		if (++ntries > 1000000) break;
+	    }
+	    Log("new rat: %i %i\n",g.rat.pos[0],g.rat.pos[1]);
+	    return;
 	}
     }
 }
-
-void reset_screen()
-{
-
-    glViewport(0, 0, g.xres, g.yres);
-    //clear color buffer
-    glClearColor(0.1f, 0.2f, 0.3f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    //init matrices
-    glMatrixMode (GL_PROJECTION); glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW); glLoadIdentity();
-    //this sets to 2D mode (no perspective)
-    glOrtho(0, g.xres, 0, g.yres, -1, 1);
-}
-
 void render(void)
-{ 
+{
     if(g.showcredits == 1)
     {
-	g.pauseState = 1;
 	show_credits(g.xres, g.yres);
     }
     else if (g.help)
     {
-	g.pauseState = 1;
-	help_screen(g.xres, g.yres);            
-    }
-    else if (g.gameover)
-    {
-	reset_screen();
-	show_gameover(g.xres, g.yres); 
+	help_screen(g.xres, g.yres);
     }
     else {
 
@@ -1315,31 +1170,18 @@ void render(void)
 	    c[2] +=	rgb[2];
 	    glColor3fv(c);
 	}
-	if (g.player_flag == 1) {
-	    //2ND Snake
-	    for (i=0; i<g.snake2.length; i++) {
-		getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
-		glVertex2i(cent[0]-g.size, cent[1]-g.size);
-		glVertex2i(cent[0]-g.size, cent[1]+g.size);
-		glVertex2i(cent[0]+g.size, cent[1]+g.size);
-		glVertex2i(cent[0]+g.size, cent[1]-g.size);
-		c2[0] +=	rgb2[0];
-		c2[2] +=	rgb2[2];
-		glColor3fv(c2);
-	    }
+	//2ND Snake
+	for (i=0; i<g.snake2.length; i++) {
+	    getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
+	    glVertex2i(cent[0]-g.size, cent[1]-g.size);
+	    glVertex2i(cent[0]-g.size, cent[1]+g.size);
+	    glVertex2i(cent[0]+g.size, cent[1]+g.size);
+	    glVertex2i(cent[0]+g.size, cent[1]-g.size);
+	    c2[0] +=	rgb2[0];
+	    c2[2] +=	rgb2[2];
+	    glColor3fv(c2);
 	}
 
-	if (g.flag == 1)
-	{
-	    for(i=0; i<g.com_snake.length; i++) {
-		getGridCenter(g.com_snake.pos[i][1],g.com_snake.pos[i][0],cent);
-		glVertex2i(cent[0]-4, cent[1]-3);
-		glVertex2i(cent[0]-4, cent[1]+4);
-		glVertex2i(cent[0]+3, cent[1]+4);
-		glVertex2i(cent[0]+3, cent[1]-3);
-		glColor3f(0.0f, 0.6, 0.0f);
-	    }
-	}
 	glEnd();
 #else //COLORFUL_SNAKE
 	glColor3f(1.0f, 0.0f, 0.0f);
@@ -1385,15 +1227,6 @@ void render(void)
 	h.bot    = 10;
 	h.center = 1;
 	ggprint16(&h, 16, 0x00ffffff, "F1 for help");
-	h.left   = g.xres/2 - 100;
-	h.bot    = 100;
-	h.center = 1;
-	ggprint16(&h, 16, 0xffff0000, "P1 Points: %i", g.p1_points);
-	h.left   = g.xres/2 + 100;
-	h.bot    = 100;
-	h.center = 1;
-	ggprint16(&h, 16, 0xf000f0, "P2 Points: %i", g.p2_points);
-
 	if (g.power_up) {
 	    show_power_up(cent);
 	}
@@ -1426,13 +1259,15 @@ void render(void)
 
 	    mouseTexture(g.snakeTexture, cent);
 	}
+    }
 
-	if (g.flag == 1)
-	    ruben_mode(g.xres, g.yres);
 
-	if (g.pauseState) {
-	    show_pause_screen(g.xres, g.yres);
-	}
+
+    if (g.pauseState) {
+	show_pause_screen(g.xres, g.yres);
+    }
+    if (g.st_feature != 0) {
+    	show_feature_st(g.xres, g.yres);
     }
 }
 
