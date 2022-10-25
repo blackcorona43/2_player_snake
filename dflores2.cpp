@@ -5,8 +5,6 @@
 #include <GL/glx.h>
 #include "fonts.h"
 
-int s = 24;
-
 void show_pause_screen(int xres, int yres)
 {	
     	Rect r;
@@ -26,18 +24,56 @@ void show_pause_screen(int xres, int yres)
 	ggprint16(&r, 16, 0x00ffffff, "Paused");
 }
 
-void mouseTexture(GLuint texture, int center[]) {
-        glColor3f(0.5f, 0.5f, 0.5f);
+void game_Texture(GLuint texture, int center[], int s, int dir) {
+        glColor3f(0.5, 0.5, 0.5);
         glBindTexture(GL_TEXTURE_2D, texture);
         glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); glVertex2i(center[0] - s,
-                                            center[1] - s);
-        glTexCoord2f(0.0f, 1.0f); glVertex2i(center[0] - s,
-                                            center[1] + s);
-        glTexCoord2f(1.0f, 1.0f); glVertex2i(center[0] + s,
-                                            center[1] + s);
-        glTexCoord2f(1.0f, 0.0f); glVertex2i(center[0] + s,
-                                            center[1] - s);
+
+        switch (dir) {
+        case 0:
+            glTexCoord2f(0.0f, 0.0f);
+            glVertex2i(center[0] - s, center[1] - s);
+            glTexCoord2f(0.0f, 1.0f);
+            glVertex2i(center[0] - s, center[1] + s);
+            glTexCoord2f(1.0f, 1.0f);
+            glVertex2i(center[0] + s, center[1] + s);
+            glTexCoord2f(1.0f, 0.0f);
+            glVertex2i(center[0] + s, center[1] - s);
+            break;
+
+        case 1:
+            glTexCoord2f(1.0f, 0.0f);
+            glVertex2i(center[0] - s, center[1] - s);
+            glTexCoord2f(0.0f, 0.0f);
+            glVertex2i(center[0] - s, center[1] + s);
+            glTexCoord2f(0.0f, 1.0f);
+            glVertex2i(center[0] + s, center[1] + s);
+            glTexCoord2f(1.0f, 1.0f);
+            glVertex2i(center[0] + s, center[1] - s);
+            break;
+
+        case 2:
+            glTexCoord2f(1.0f, 1.0f);
+            glVertex2i(center[0] - s, center[1] - s);
+            glTexCoord2f(1.0f, 0.0f);
+            glVertex2i(center[0] - s, center[1] + s);
+            glTexCoord2f(0.0f, 0.0f);
+            glVertex2i(center[0] + s, center[1] + s);
+            glTexCoord2f(0.0f, 1.0f);
+            glVertex2i(center[0] + s, center[1] - s);
+            break;
+
+        case 3:
+            glTexCoord2f(0.0f, 1.0f);
+            glVertex2i(center[0] - s, center[1] - s);
+            glTexCoord2f(1.0f, 1.0f);
+            glVertex2i(center[0] - s, center[1] + s);
+            glTexCoord2f(1.0f, 0.0f);
+            glVertex2i(center[0] + s, center[1] + s);
+            glTexCoord2f(0.0f, 0.0f);
+            glVertex2i(center[0] + s, center[1] - s);
+            break;
+    }
         glEnd();
         glBindTexture(GL_TEXTURE_2D, 0);
 }

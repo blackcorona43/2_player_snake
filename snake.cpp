@@ -154,7 +154,8 @@ class Image {
 Image img[1] = {"./images/dirt.gif" };
 Image img2[1] = {"./images/credits.gif" };
 Image img3[1] = {"./images/rat1.gif" };
-
+Image img4[1] = {"./images/rat1.gif" };
+Image img5[1] = {"./images/rat1.gif" };
 
 struct Global {
     int xres, yres;
@@ -172,6 +173,7 @@ struct Global {
     int done = 0;
     unsigned int showcredits;
     int size = 16;
+    int pixel = 16;
     unsigned int texture_feature = 0;
     int pauseState = 0;
     int p1_points = 0;
@@ -180,11 +182,16 @@ struct Global {
     int help = 0;
     unsigned int power_up = 0;
     Image *marbleImage;
-    Image *snakeImage;
+    Image *mouseImage;
+    Image *grassImage;
     Image *creditsImage;
+    Image *snakeHead1Image;
+    Image *snakeHead2Image;
     GLuint marbleTexture;
-    //Mouse Texture -- Needs to be renamed
-    GLuint snakeTexture;
+    GLuint mouseTexture;
+    GLuint grassTexture;
+    GLuint snakeHead1Texture;
+    GLuint snakeHead2Texture;
     Button button[MAXBUTTONS];
     int nbuttons;
     //
@@ -200,7 +207,10 @@ struct Global {
 	showcredits = 0;
 	marbleImage=NULL;
 	creditsImage=NULL;
-	snakeImage=NULL;
+	mouseImage=NULL;
+	grassImage=NULL;
+	snakeHead1Image=NULL;
+	snakeHead2Image=NULL;
     }
 } g;
 
@@ -488,18 +498,53 @@ void initOpengl(void)
 	    g.marbleImage->width, g.marbleImage->height,
 	    0, GL_RGB, GL_UNSIGNED_BYTE, g.marbleImage->data);
 
-    // Snake Head Image
-    g.snakeImage = &img3[0];
+    // Grass Image
+    g.grassImage = &img2[0];
 
     //create opengl texture elements
-    glGenTextures(1, &g.snakeTexture);
-    glBindTexture(GL_TEXTURE_2D, g.snakeTexture);
+    glGenTextures(1, &g.grassTexture);
+    glBindTexture(GL_TEXTURE_2D, g.grassTexture);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
-	    g.snakeImage->width, g.snakeImage->height,
-	    0, GL_RGB, GL_UNSIGNED_BYTE, g.snakeImage->data);
+	    g.grassImage->width, g.grassImage->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, g.grassImage->data);
 
+    // MouseImage
+    g.mouseImage = &img3[0];
+
+    //create opengl texture elements
+    glGenTextures(1, &g.mouseTexture);
+    glBindTexture(GL_TEXTURE_2D, g.mouseTexture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+	    g.mouseImage->width, g.mouseImage->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, g.mouseImage->data);
+
+    // snakeHead1Image
+    g.snakeHead1Image = &img4[0];
+
+    //create opengl texture elements
+    glGenTextures(1, &g.snakeHead1Texture);
+    glBindTexture(GL_TEXTURE_2D, g.snakeHead1Texture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+	    g.snakeHead1Image->width, g.snakeHead1Image->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, g.snakeHead1Image->data);
+
+    // snakeHead2Image
+    g.snakeHead2Image = &img5[0];
+
+    //create opengl texture elements
+    glGenTextures(1, &g.snakeHead2Texture);
+    glBindTexture(GL_TEXTURE_2D, g.snakeHead2Texture);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3,
+	    g.snakeHead2Image->width, g.snakeHead2Image->height,
+	    0, GL_RGB, GL_UNSIGNED_BYTE, g.snakeHead2Image->data);
 }
 
 void initSnake()
@@ -523,16 +568,15 @@ void initSnake()
     }
     g.snake2.direction = DIRECTION_LEFT;
 
-    if (computer_snake(g.flag)) {
-	g.com_snake.status = 1;
-	g.com_snake.delay = .15;
-	g.com_snake.length = 5;
-	for (i=0; i < g.com_snake.length; i++) {
-	    g.com_snake.pos[i][0] = 30;
-	    g.com_snake.pos[i][1] = 30;
-	}
-	g.com_snake.direction = DIRECTION_LEFT;
+    g.com_snake.status = 1;
+    g.com_snake.delay = .15;
+    g.com_snake.length = 5;
+    for (i=0; i < g.com_snake.length; i++) {
+	g.com_snake.pos[i][0] = 30;
+	g.com_snake.pos[i][1] = 30;
     }
+    g.com_snake.direction = DIRECTION_LEFT;
+
 }
 
 void initRat()
@@ -917,7 +961,7 @@ void physics(void)
 		g.snake.pos[0][0] > g.gridDim-1 ||
 		g.snake.pos[0][1] < 0 ||
 		g.snake.pos[0][1] > g.gridDim-1) {
-		g.p2_points += 20;
+	    g.p2_points += 20;
 	    g.gameover=1;
 	    printf("\n");
 	    printf("-----------------------------\n");
@@ -965,7 +1009,7 @@ void physics(void)
 	    for (i=1; i<g.snake2.length; i++) {
 		if (g.snake2.pos[i][0] == g.snake2.pos[0][0] &&
 			g.snake2.pos[i][1] == g.snake2.pos[0][1]) {
-		g.p1_points += 20;
+		    g.p1_points += 20;
 		    g.gameover=1;
 		    printf("\n");
 		    printf("-----------------------------\n");
@@ -981,8 +1025,8 @@ void physics(void)
 	// Check for Colliding Heads
 	if (g.snake2.pos[0][0] == g.snake.pos[0][0] &&
 		g.snake2.pos[0][1] == g.snake.pos[0][1]) {
-		g.p1_points += 20;
-		g.p2_points += 20;
+	    g.p1_points += 20;
+	    g.p2_points += 20;
 	    g.gameover=1;
 	    printf("\n");
 	    printf("-----------------------------\n");
@@ -1307,28 +1351,64 @@ void render(void)
 	glBegin(GL_QUADS);
 	for (i=0; i<g.snake.length; i++) {
 	    getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
-	    glVertex2i(cent[0]-g.size, cent[1]-g.size);
-	    glVertex2i(cent[0]-g.size, cent[1]+g.size);
-	    glVertex2i(cent[0]+g.size, cent[1]+g.size);
-	    glVertex2i(cent[0]+g.size, cent[1]-g.size);
-	    c[0] +=	rgb[0];
-	    c[2] +=	rgb[2];
-	    glColor3fv(c);
+	    if (g.texture_feature == 1) {
+		if (g.snake.pos[0][0]) {
+		    game_Texture(g.mouseTexture, cent, g.pixel, 0);
+		}
+		if (i == 0) {
+		    game_Texture(g.mouseTexture, cent, g.pixel, 
+			    g.snake.direction);
+		}           
+
+		else {
+		    glBegin(GL_QUADS);
+		    glVertex2i(cent[0]-g.size, cent[1]-g.size);
+		    glVertex2i(cent[0]-g.size, cent[1]+g.size);
+		    glVertex2i(cent[0]+g.size, cent[1]+g.size);
+		    glVertex2i(cent[0]+g.size, cent[1]-g.size);
+		    c[0] +=	rgb[0];
+		    c[2] +=	rgb[2];
+		    glColor3fv(c);
+		}
+	    }
+	    else {
+		    glBegin(GL_QUADS);
+		    glVertex2i(cent[0]-g.size, cent[1]-g.size);
+		    glVertex2i(cent[0]-g.size, cent[1]+g.size);
+		    glVertex2i(cent[0]+g.size, cent[1]+g.size);
+		    glVertex2i(cent[0]+g.size, cent[1]-g.size);
+		    c[0] +=	rgb[0];
+		    c[2] +=	rgb[2];
+		    glColor3fv(c);
+	    }
 	}
 	if (g.player_flag == 1) {
 	    //2ND Snake
 	    for (i=0; i<g.snake2.length; i++) {
 		getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
-		glVertex2i(cent[0]-g.size, cent[1]-g.size);
-		glVertex2i(cent[0]-g.size, cent[1]+g.size);
-		glVertex2i(cent[0]+g.size, cent[1]+g.size);
-		glVertex2i(cent[0]+g.size, cent[1]-g.size);
-		c2[0] +=	rgb2[0];
-		c2[2] +=	rgb2[2];
-		glColor3fv(c2);
+		if (g.texture_feature == 1) {
+		    if (g.snake2.pos[0][0]) {
+			game_Texture(g.marbleTexture, cent, g.pixel, 0);
+		    }
+		    if (i == 0) {
+			game_Texture(g.mouseTexture, cent, g.pixel,
+				g.snake2.direction);
+		    }
+		    else {
+			//Need to fix here
+		    }
+		}
+		else {
+		    glVertex2i(cent[0]-g.size, cent[1]-g.size);
+		    glVertex2i(cent[0]-g.size, cent[1]+g.size);
+		    glVertex2i(cent[0]+g.size, cent[1]+g.size);
+		    glVertex2i(cent[0]+g.size, cent[1]-g.size);
+		    c2[0] +=	rgb2[0];
+		    c2[2] +=	rgb2[2];
+		    glColor3fv(c2);
+		}
 	    }
 	}
-
 	if (g.flag == 1)
 	{
 	    for(i=0; i<g.com_snake.length; i++) {
@@ -1424,7 +1504,7 @@ void render(void)
 	    glEnd();
 	    glDisable(GL_BLEND);
 
-	    mouseTexture(g.snakeTexture, cent);
+	    game_Texture(g.mouseTexture, cent, g.pixel, g.snake.direction);
 	}
 
 	if (g.flag == 1)
