@@ -172,6 +172,7 @@ struct Global {
     int winner;
     int done = 0;
     unsigned int showcredits;
+    unsigned int featJ = 0;
     int size = 16;
     int pixel = 16;
     unsigned int texture_feature = 0;
@@ -704,6 +705,10 @@ int checkKeys(XEvent *e)
 	case XK_l: // length power up
 	    printf("Length Power Up testing\n");
 	    g.power_up ^= 1;
+	    break;
+	case XK_j: // Jasdeep feature mode
+	    printf("Feature mode to test buttons (Jasdeep)\n");
+	    g.featJ ^= 1;
 	    break;
 	case XK_a:
 	    g.snake.direction = DIRECTION_LEFT;
@@ -1509,6 +1514,10 @@ void render(void)
 
 	if (g.flag == 1)
 	    ruben_mode(g.xres, g.yres);
+	if (g.featJ == 1) {
+	    show_pause_screen(g.xres, g.yres);
+	    featureJas(g.xres, g.yres);
+	}
 
 	if (g.pauseState) {
 	    show_pause_screen(g.xres, g.yres);
