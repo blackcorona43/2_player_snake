@@ -39,6 +39,8 @@ int help_screen(int xres, int yres)
     ggprint16(&r, 16, 0x00ffffff, "     ");
     ggprint16(&r, 16, 0x00ffffff, "c to show the Credits Screen     ");
     ggprint16(&r, 16, 0x00ffffff, "     ");
+    ggprint16(&r, 16, 0x00ffffff, "l to see length power up     ");
+    ggprint16(&r, 16, 0x00ffffff, "     ");
     ggprint16(&r, 16, 0x00ffffff, "r to reset the game     ");
     ggprint16(&r, 16, 0x00ffffff, "     ");
     ggprint16(&r, 16, 0x00ffffff, "F1 to show the Help Screen    ");

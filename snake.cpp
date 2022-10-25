@@ -80,10 +80,6 @@ typedef struct t_rat {
     int status;
     int pos[2];
 } Rat;
-//
-//
-//
-//
 #define MAXBUTTONS 4
 typedef struct t_button {
     Rect r;
@@ -593,10 +589,6 @@ void resetGame()
 }
 extern int show_power_up(int[]);
 extern int help_screen(int,int);
-extern int my_name();
-extern int name3();
-extern int show_my_name();
-extern int name5();
 int checkKeys(XEvent *e)
 {
     static int shift=0;
@@ -616,11 +608,14 @@ int checkKeys(XEvent *e)
     switch (key) {
 	case XK_r:
 	    resetGame();
+	    printf("Reset Game\n");
 	    break;
 	case XK_Escape:// Escape to quit game
 	    g.done = 1;
+	    printf("Quit Game\n");
 	    return 1;
 	case XK_c:// open/close credits page
+	    printf("Credits Screen\n");
 	    g.showcredits = manage_state_st(g.showcredits);
 	    break;
 	case XK_equal:
@@ -635,7 +630,7 @@ int checkKeys(XEvent *e)
 	    printf("Help Screen\n");
 	    g.help ^= 1;
 	    break;
-	case XK_m: // power up mode
+	case XK_l: // power up mode
 	    printf("Power Up testing\n");
 	    g.power_up ^= 1;
 	    break;
@@ -665,6 +660,7 @@ int checkKeys(XEvent *e)
 	    g.snake2.direction = DIRECTION_DOWN;
 	    break;
 	case XK_p:
+	    printf("Pause Game\n");
 	    g.pauseState ^= 1;
 	    break;
 	case XK_t:
@@ -1226,7 +1222,6 @@ void render(void)
 	if (g.power_up) {
 	    show_power_up(cent);
 	}
-
 	//Texture Feature created by Dominic
 	if (g.texture_feature == 1) {
 	    //draw a border using a triangle strip
@@ -1256,8 +1251,6 @@ void render(void)
 	    mouseTexture(g.snakeTexture, cent);
 	}
     }
-
-
 
     if (g.pauseState) {
 	show_pause_screen(g.xres, g.yres);
