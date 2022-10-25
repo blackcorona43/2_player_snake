@@ -180,8 +180,40 @@ int show_gameover(int xres, int yres)
     glEnd();
     ggprint16(&r, 16, 0x00ffffff, "GAME OVER");
     ggprint16(&r, 16, 0x00ffffff, "Press R to Restart");
-    ggprint16(&r, 16, 0x00ffffff, "Press Q to Quit");
+    ggprint16(&r, 16, 0x00ffffff, "Press Esc to Quit");
     return 0;
 }
+
+int ruben_mode(int xres, int yres)
+{  
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glColor3f(1.0,1.0,0.0);
+    glColor4f(0.0,1.0,0.0,0.5);
+    int w = 20;
+    glBegin(GL_TRIANGLE_STRIP);
+    glVertex2f(0,0);
+    glVertex2f(0 + w, w);
+
+    glVertex2f(0, yres);
+    glVertex2f(0 + w, yres - w);
+
+    glVertex2f(xres, yres);
+    glVertex2f(xres - w, yres - w);
+    
+    glVertex2f(xres, 0);
+    glVertex2f(xres - w, w);
+
+    glVertex2f(0, 0);
+    glVertex2f(0 + w, w);
+    glEnd();
+    glDisable(GL_BLEND);
+    return 0;
+
+}
+
+
+
+
 
 
