@@ -657,8 +657,8 @@ int checkKeys(XEvent *e)
 	    printf("Help Screen\n");
 	    g.help ^= 1;
 	    break;
-	case XK_m: // power up mode
-	    printf("Power Up testing\n");
+	case XK_l: // length power up
+	    printf("Length Power Up testing\n");
 	    g.power_up ^= 1;
 	    break;
 	case XK_a:
