@@ -35,6 +35,8 @@ int help_screen(int xres, int yres)
     ggprint16(&r, 16, 0x00ffffff, "     ");
     ggprint16(&r, 16, 0x00ffffff, "Player 2 Keys: UP, LEFT, DOWN, RIGHT");
     ggprint16(&r, 16, 0x00ffffff, "     ");
+    ggprint16(&r, 16, 0x00ffffff, "Vs COmputer Press V");
+    ggprint16(&r, 16, 0x00ffffff, "     ");
     ggprint16(&r, 16, 0x00ffffff, "p to Pause the game     ");
     ggprint16(&r, 16, 0x00ffffff, "     ");
     ggprint16(&r, 16, 0x00ffffff, "c to show the Credits Screen     ");
