@@ -30,6 +30,10 @@ int help_screen(int xres, int yres)
     glVertex2f(xres,-yres);
     glEnd();
     ggprint16(&r, 16, 0x00ffffff, "--Help Screen--");
+    ggprint16(&r, 16, 0x00ffffff, "     "); 
+    ggprint16(&r, 16, 0x00ffffff, "2 player mode: press Q");
+    ggprint16(&r, 16, 0x00ffffff, "     ");
+    ggprint16(&r, 16, 0x00ffffff, "Player vs Com: press v");
     ggprint16(&r, 16, 0x00ffffff, "     ");
     ggprint16(&r, 16, 0x00ffffff, "Player 1 Keys: W, A, S, D");
     ggprint16(&r, 16, 0x00ffffff, "     ");

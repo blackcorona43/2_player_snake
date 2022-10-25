@@ -6,10 +6,12 @@
 #define MAX_GRID 80
 #include <X11/Xlib.h>
 #include <GL/glx.h>
+#include "fonts.h"
 #define DIRECTION_DOWN   0
 #define DIRECTION_LEFT   1
 #define DIRECTION_UP     2
 #define DIRECTION_RIGHT  3
+
 
 typedef struct a_snake
 {
@@ -157,3 +159,29 @@ void ai_long_length (int ai_length, int ai_old_pos[],
         }
     return;
 }
+
+int show_gameover(int xres, int yres)
+{
+    Rect r;
+    r.left = xres/2;
+    r.bot  = yres/2-25;
+    r.center = 1;
+    int w = 0;
+    static float pos[2] = {0.0f+w, yres/2.0f};
+    glClear(GL_COLOR_BUFFER_BIT);
+    glPushMatrix();
+    glColor3ub(217,70,40);
+    glTranslatef(pos[0], pos[1], 0.0f);
+    glBegin(GL_QUADS);
+    glVertex2f(-xres,-yres);
+    glVertex2f(-xres, yres);
+    glVertex2f(xres,yres);
+    glVertex2f(xres,-yres);
+    glEnd();
+    ggprint16(&r, 16, 0x00ffffff, "GAME OVER");
+    ggprint16(&r, 16, 0x00ffffff, "Press R to Restart");
+    ggprint16(&r, 16, 0x00ffffff, "Press Q to Quit");
+    return 0;
+}
+
+

@@ -1148,27 +1148,11 @@ void render(void)
     else if (g.help)
     {
         g.pauseState = 1;
-        help_screen(g.xres, g.yres);
-            
-
-
+        help_screen(g.xres, g.yres);            
     }
     else if (g.gameover)
     {
-        Rect r;
-
-        glClear(GL_COLOR_BUFFER_BIT);
-        glColor3f(0.5f, 0.5f, 0.5f);
-        glBindTexture(GL_TEXTURE_2D, g.marbleTexture);
-        glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      0);
-        glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      g.yres);
-        glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, g.yres);
-        glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, 0); 
-        glEnd();
-        glBindTexture(GL_TEXTURE_2D, 0);
-        ggprint16(&r,16, 0x00ffffff, "GAME OVER");
-        ggprint16(&r,16, 0x00ffffff, "Pess R to RESTART");
+        show_gameover(g.xres, g.yres); 
     }
     else {
 
@@ -1324,7 +1308,6 @@ void render(void)
                 glColor3f(0.0f, 0.6, 0.0f);
             }
         }
-
         glEnd();
 #else //COLORFUL_SNAKE
         glColor3f(1.0f, 0.0f, 0.0f);
@@ -1402,12 +1385,12 @@ void render(void)
 
             mouseTexture(g.snakeTexture, cent);
         }
-    }
 
 
 
-    if (g.pauseState) {
-        show_pause_screen(g.xres, g.yres);
+        if (g.pauseState) {
+            show_pause_screen(g.xres, g.yres);
+        }
     }
 }
 
