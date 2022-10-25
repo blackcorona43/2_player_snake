@@ -65,5 +65,20 @@ int show_power_up(int cent[])
 
     return 0;
 }
+int leaderboard(int your_score, int high_score)
+{
+    //output leader board 
+    if (your_score > high_score) {
+	printf("New High Score!!\n");
+    }
+    if (your_score == high_score) {
+	printf("High Score Tied!\n");
+    }
+    if (your_score < high_score) {
+	printf("Better Luck Next Time...\n");
+    }
+    
+    return 0;
+}
 
 
