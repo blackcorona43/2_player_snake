@@ -45,6 +45,8 @@ int help_screen(int xres, int yres)
     ggprint16(&r, 16, 0x00ffffff, "     ");
     ggprint16(&r, 16, 0x00ffffff, "r to reset the game     ");
     ggprint16(&r, 16, 0x00ffffff, "     ");
+    ggprint16(&r, 16, 0x00ffffff, "n for Samantha's feature mode     ");
+    ggprint16(&r, 16, 0x00ffffff, "     ");
     ggprint16(&r, 16, 0x00ffffff, "F1 to show the Help Screen    ");
     ggprint16(&r, 16, 0x00ffffff, "     ");
     ggprint16(&r, 16, 0x00ffffff, "Esc to quit the game     ");
