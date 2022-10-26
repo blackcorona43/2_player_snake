@@ -25,7 +25,7 @@ void show_pause_screen(int xres, int yres)
 }
 
 void game_Texture(GLuint texture, int center[], int s, int dir) {
-        glColor3f(0.5, 0.5, 0.5);
+        //glColor3f(0.5, 0.5, 0.5);
         glBindTexture(GL_TEXTURE_2D, texture);
         glBegin(GL_QUADS);
 
