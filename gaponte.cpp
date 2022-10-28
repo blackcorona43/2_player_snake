@@ -51,6 +51,8 @@ int help_screen(int xres, int yres)
     ggprint16(&r, 16, 0x00ffffff, "     ");
     ggprint16(&r, 16, 0x00ffffff, "Esc to quit the game     ");
     ggprint16(&r, 16, 0x00ffffff, "     ");
+    ggprint16(&r, 16, 0x00ffffff, "t for Dominic's feature mode     ");
+    ggprint16(&r, 16, 0x00ffffff, "     ");
     glPopMatrix();
     return 0;
 }
