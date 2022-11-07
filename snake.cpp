@@ -580,7 +580,8 @@ void initOpengl(void)
 	    g.snakeHead1Image->width, g.snakeHead1Image->height,
 	    0, GL_RGB, GL_UNSIGNED_BYTE, g.snakeHead1Image->data);
 
-    //silhouette
+
+    //silhouette (SnakeHead)
     glGenTextures(1, &g.silTexture);
     glBindTexture(GL_TEXTURE_2D, g.silTexture);
     //
@@ -588,11 +589,12 @@ void initOpengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     //
     //must build a new set of data...
-    unsigned char *silData = buildAlphaData(&img4[0]);    
+    unsigned char *silData = buildAlphaData(&img4[0]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, g.snakeHead1Image->width,
-	   g.snakeHead1Image->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, silData);
+       g.snakeHead1Image->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, silData);
     free(silData);
-	
+
+
     // snakeHead2Image
     g.snakeHead2Image = &img5[0];
 
@@ -1415,17 +1417,18 @@ void render(void)
 	glColor3fv(c);
 	//
 	glBegin(GL_QUADS);
-	for (i=0; i<g.snake.length; i++) {
+	for (i=1; i<g.snake.length; i++) {
 	    getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
 	    if (g.texture_feature == 1) {
 		if (i == 0) {
-		    glEnd();
-		    glColor3f(0.5f, 0.5, 0.5);
-		    game_Texture(g.silTexture, cent, g.pixel, 
+            glEnd();
+		    glColor3f(1.0f, 0.0, 0.0);
+		    game_Texture(g.silTexture, cent, g.pixel * 5, 
 			    g.snake.direction);
-		    glEnd();
-		}           
+            i = 2;
+		}        
 		else {
+		    glEnd();
 		    glBegin(GL_QUADS);
 		    glVertex2i(cent[0]-g.size, cent[1]-g.size);
 		    glVertex2i(cent[0]-g.size, cent[1]+g.size);
@@ -1434,9 +1437,12 @@ void render(void)
 		    c[0] +=	rgb[0];
 		    c[2] +=	rgb[2];
 		    glColor3fv(c);
-		}
+            if (i == 1) {
+                i = 0;
+            }
 	    }
-	    /*else {
+        }
+	    else {
 		glBegin(GL_QUADS);
 		glVertex2i(cent[0]-g.size, cent[1]-g.size);
 		glVertex2i(cent[0]-g.size, cent[1]+g.size);
@@ -1445,7 +1451,7 @@ void render(void)
 		c[0] +=	rgb[0];
 		c[2] +=	rgb[2];
 		glColor3fv(c);
-	    }*/
+	    }
 	}
 	if (g.player_flag == 1) {
 	    //2ND Snake
