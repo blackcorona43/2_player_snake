@@ -25,8 +25,9 @@ void show_pause_screen(int xres, int yres)
 }
 
 void game_Texture(GLuint texture, int center[], int s, int dir) {
-        //glColor3f(0.5, 0.5, 0.5);
         glBindTexture(GL_TEXTURE_2D, texture);
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.0f);
         glBegin(GL_QUADS);
 
         switch (dir) {
