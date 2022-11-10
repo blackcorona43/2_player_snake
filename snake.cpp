@@ -154,7 +154,7 @@ class Image {
 Image img[1] = {"./images/dirt.gif" };
 Image img2[1] = {"./images/credits.gif" };
 Image img3[1] = {"./images/rat1.gif" };
-Image img4[1] = {"./images/rat1.gif" };
+Image img4[1] = {"./images/snakehead1.png" };
 Image img5[1] = {"./images/rat1.gif" };
 
 struct Global {
@@ -194,6 +194,7 @@ struct Global {
     GLuint grassTexture;
     GLuint snakeHead1Texture;
     GLuint snakeHead2Texture;
+    GLuint silTexture;
     Button button[MAXBUTTONS];
     int nbuttons;
     //
@@ -312,6 +313,7 @@ void getGridCenter(const int i, const int j, int cent[2]);
 void initSound();
 void cleanupSound();
 void playSound(ALuint source);
+unsigned char *buildAlphaData(Image *img);
 #endif //USE_OPENAL_SOUND
 
 
@@ -468,6 +470,48 @@ void playSound(ALuint source)
 #endif //USE_OPENAL_SOUND
 }
 
+unsigned char *buildAlphaData(Image *img)
+{
+    //Add 4th component to an RGB stream...
+    //RGBA
+    //When you do this, OpenGL is able to use the A component to determine
+    //transparency information.
+    //It is used in this application to erase parts of a texture-map from view.
+    int i;
+    int a,b,c;
+    unsigned char *newdata, *ptr;
+    unsigned char *data = (unsigned char *)img->data;
+    newdata = (unsigned char *)malloc(img->width * img->height * 4);
+    ptr = newdata;
+    for (i=0; i<img->width * img->height * 3; i+=3) {
+	a = *(data+0);
+	b = *(data+1);
+	c = *(data+2);
+	*(ptr+0) = a;
+	*(ptr+1) = b;
+	*(ptr+2) = c;
+	//-----------------------------------------------
+	//get largest color component...
+	//*(ptr+3) = (unsigned char)((
+	//      (int)*(ptr+0) +
+	//      (int)*(ptr+1) +
+	//      (int)*(ptr+2)) / 3);
+	//d = a;
+	//if (b >= a && b >= c) d = b;
+	//if (c >= a && c >= b) d = c;
+	//*(ptr+3) = d;
+	//-----------------------------------------------
+	//this code optimizes the commented code above.
+	//code contributed by student: Chris Smith
+	//
+	*(ptr+3) = (a|b|c);
+	//-----------------------------------------------
+	ptr += 4;
+	data += 3;
+    }
+    return newdata;
+}
+
 void initOpengl(void)
 {
     //OpenGL initialization
@@ -535,6 +579,21 @@ void initOpengl(void)
     glTexImage2D(GL_TEXTURE_2D, 0, 3,
 	    g.snakeHead1Image->width, g.snakeHead1Image->height,
 	    0, GL_RGB, GL_UNSIGNED_BYTE, g.snakeHead1Image->data);
+
+
+    //silhouette (SnakeHead)
+    glGenTextures(1, &g.silTexture);
+    glBindTexture(GL_TEXTURE_2D, g.silTexture);
+    //
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    //
+    //must build a new set of data...
+    unsigned char *silData = buildAlphaData(&img4[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, g.snakeHead1Image->width,
+	    g.snakeHead1Image->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, silData);
+    free(silData);
+
 
     // snakeHead2Image
     g.snakeHead2Image = &img5[0];
@@ -1358,21 +1417,16 @@ void render(void)
 	glColor3fv(c);
 	//
 	glBegin(GL_QUADS);
-	for (i=0; i<g.snake.length; i++) {
+	for (i=1; i<g.snake.length; i++) {
 	    getGridCenter(g.snake.pos[i][1],g.snake.pos[i][0],cent);
 	    if (g.texture_feature == 1) {
-		if (true) {
-		    if  (i == 0) {
-			glColor3f(1.0f, 0.0, 0.0);
-			game_Texture(g.mouseTexture, cent, g.pixel, 0);
-		    }
-		}
 		if (i == 0) {
+		    glEnd();
 		    glColor3f(1.0f, 0.0, 0.0);
-		    game_Texture(g.mouseTexture, cent, g.pixel, 
+		    game_Texture(g.silTexture, cent, g.pixel * 5, 
 			    g.snake.direction);
-		}           
-
+		    i = 1;
+		}        
 		else {
 		    glEnd();
 		    glBegin(GL_QUADS);
@@ -1383,6 +1437,9 @@ void render(void)
 		    c[0] +=	rgb[0];
 		    c[2] +=	rgb[2];
 		    glColor3fv(c);
+		    if (i == 1) {
+			i = -1;
+		    }
 		}
 	    }
 	    else {
@@ -1398,22 +1455,17 @@ void render(void)
 	}
 	if (g.player_flag == 1) {
 	    //2ND Snake
-	    for (i=0; i<g.snake2.length; i++) {
+	    for (i=1; i<g.snake2.length; i++) {
 		getGridCenter(g.snake2.pos[i][1],g.snake2.pos[i][0],cent);
 		if (g.texture_feature == 1) {
-		    if (true) {
-			game_Texture(g.mouseTexture, cent, g.pixel,
-				g.snake2.direction);
-		    }
-
 		    if (i == 0) {
+			glEnd();
 			glColor3f(1.0f, 0.1, 1.0);
-			game_Texture(g.mouseTexture, cent, g.pixel,
+			game_Texture(g.silTexture, cent, g.pixel * 5, 
 				g.snake2.direction);
-		    }
-		    
+			i = 1;
+		    }        
 		    else {
-			//Need to fix here
 			glBegin(GL_QUADS);
 			glVertex2i(cent[0]-g.size, cent[1]-g.size);
 			glVertex2i(cent[0]-g.size, cent[1]+g.size);
@@ -1422,6 +1474,9 @@ void render(void)
 			c2[0] +=	rgb2[0];
 			c2[2] +=	rgb2[2];
 			glColor3fv(c2);
+			if (i == 1) {
+			    i = -1;
+			}
 		    }
 		}
 		else {
