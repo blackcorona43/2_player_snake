@@ -721,6 +721,7 @@ extern int my_name();
 extern int name3();
 extern int show_my_name();
 extern int name5();
+extern int show_scores(int,int,int,int);
 int checkKeys(XEvent *e)
 {
     static int shift=0;
@@ -1537,24 +1538,7 @@ void render(void)
 	glEnd();
 	//
 	//
-	r.left   = g.xres/2;
-	r.bot    = g.yres-100;
-	r.center = 1;
-	ggprint16(&r, 16, 0x00ffffff, "Hungry Hungry Snake");
-	Rect h;
-	h.left   = 50;
-	h.bot    = 10;
-	h.center = 1;
-	ggprint16(&h, 16, 0x00ffffff, "F1 for help");
-	h.left   = g.xres/2 - 100;
-	h.bot    = 100;
-	h.center = 1;
-	ggprint16(&h, 16, 0xffff0000, "P1 Points: %i", g.p1_points);
-	h.left   = g.xres/2 + 100;
-	h.bot    = 100;
-	h.center = 1;
-	ggprint16(&h, 16, 0xf000f0, "P2 Points: %i", g.p2_points);
-
+	show_scores(g.p1_points, g.p2_points,g.xres,g.yres);
 	if (g.power_up) {
 	    show_power_up(cent);
 	}

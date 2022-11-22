@@ -59,15 +59,38 @@ int help_screen(int xres, int yres)
 int show_power_up(int cent[])
 {
     //draw power up
-        glColor3f(255, 255, 0);
-        glBegin(GL_QUADS);
-        glVertex2i(cent[0]-4, cent[1]-3);
-        glVertex2i(cent[0]-4, cent[1]+4);
-        glVertex2i(cent[0]+3, cent[1]+4);
-        glVertex2i(cent[0]+3, cent[1]-3);
-        glEnd();
+    glColor3f(255, 255, 0);
+    glBegin(GL_QUADS);
+    glVertex2i(cent[0]-4, cent[1]-3);
+    glVertex2i(cent[0]-4, cent[1]+4);
+    glVertex2i(cent[0]+3, cent[1]+4);
+    glVertex2i(cent[0]+3, cent[1]-3);
+    glEnd();
 
     return 0;
+}
+int show_scores(int p1, int p2, int xres, int yres)
+{   
+    Rect r;
+    r.left   = xres/2;
+    r.bot    = yres-100;
+    r.center = 1;
+    ggprint16(&r, 16, 0x00ffffff, "Hungry Hungry Snake");
+    Rect h;
+    h.left   = 50;
+    h.bot    = 10;
+    h.center = 1;
+    ggprint16(&h, 16, 0x00ffffff, "F1 for help");
+    h.left   = xres/2 - 100;
+    h.bot    = 100;
+    h.center = 1;
+    ggprint16(&h, 16, 0xffff0000, "P1 Points: %i", p1);
+    h.left   = xres/2 + 100;
+    h.bot    = 100;
+    h.center = 1;
+    ggprint16(&h, 16, 0xf000f0, "P2 Points: %i", p2);
+    return 0;
+
 }
 int leaderboard(int your_score, int high_score)
 {
@@ -81,7 +104,7 @@ int leaderboard(int your_score, int high_score)
     if (your_score < high_score) {
 	printf("Better Luck Next Time...\n");
     }
-    
+
     return 0;
 }
 
