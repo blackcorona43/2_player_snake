@@ -76,7 +76,7 @@ typedef struct t_snake {
     int direction;
     double timer;
     double delay;
-} Snake, Snake2;
+} Snake;
 //
 typedef struct t_rat {
     int status;
@@ -161,7 +161,7 @@ struct Global {
     int xres, yres;
     Grid grid[MAX_GRID][MAX_GRID];
     Snake snake;
-    Snake snake2;
+    Snake2 snake2;
     Ai_snake com_snake;
     Rat rat;
     unsigned int flag = 0;
@@ -470,48 +470,6 @@ void playSound(ALuint source)
 #endif //USE_OPENAL_SOUND
 }
 
-unsigned char *buildAlphaData(Image *img)
-{
-    //Add 4th component to an RGB stream...
-    //RGBA
-    //When you do this, OpenGL is able to use the A component to determine
-    //transparency information.
-    //It is used in this application to erase parts of a texture-map from view.
-    int i;
-    int a,b,c;
-    unsigned char *newdata, *ptr;
-    unsigned char *data = (unsigned char *)img->data;
-    newdata = (unsigned char *)malloc(img->width * img->height * 4);
-    ptr = newdata;
-    for (i=0; i<img->width * img->height * 3; i+=3) {
-	a = *(data+0);
-	b = *(data+1);
-	c = *(data+2);
-	*(ptr+0) = a;
-	*(ptr+1) = b;
-	*(ptr+2) = c;
-	//-----------------------------------------------
-	//get largest color component...
-	//*(ptr+3) = (unsigned char)((
-	//      (int)*(ptr+0) +
-	//      (int)*(ptr+1) +
-	//      (int)*(ptr+2)) / 3);
-	//d = a;
-	//if (b >= a && b >= c) d = b;
-	//if (c >= a && c >= b) d = c;
-	//*(ptr+3) = d;
-	//-----------------------------------------------
-	//this code optimizes the commented code above.
-	//code contributed by student: Chris Smith
-	//
-	*(ptr+3) = (a|b|c);
-	//-----------------------------------------------
-	ptr += 4;
-	data += 3;
-    }
-    return newdata;
-}
-
 void initOpengl(void)
 {
     //OpenGL initialization
@@ -589,7 +547,7 @@ void initOpengl(void)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     //
     //must build a new set of data...
-    unsigned char *silData = buildAlphaData(&img4[0]);
+    unsigned char *silData = buildAlphaData(img4[0].data, img4[0].height, img4[0].width );
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, g.snakeHead1Image->width,
 	    g.snakeHead1Image->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, silData);
     free(silData);
@@ -715,13 +673,12 @@ void resetGame()
     g.flag = 0;
     g.gameover = 0;
 }
-extern int show_power_up_mode(int[],int,int);
+extern int show_power_up(int[]);
 extern int help_screen(int,int);
 extern int my_name();
 extern int name3();
 extern int show_my_name();
 extern int name5();
-extern int show_scores(int,int,int,int);
 int checkKeys(XEvent *e)
 {
     static int shift=0;
@@ -1018,12 +975,7 @@ void physics(void)
 
 	if (g.player_flag == 1) {
 	    // 2ND Snake Direction
-	    switch (g.snake2.direction) {
-		case DIRECTION_DOWN:  g.snake2.pos[0][1] += 1; break;
-		case DIRECTION_LEFT:  g.snake2.pos[0][0] -= 1; break;
-		case DIRECTION_UP:    g.snake2.pos[0][1] -= 1; break;
-		case DIRECTION_RIGHT: g.snake2.pos[0][0] += 1; break;
-	    }
+	    snake_direction(g.snake2.direction, g.snake2.pos);
 	}
 	//check for snake off board...
 	if (g.snake.pos[0][0] < 0 ||
@@ -1042,12 +994,8 @@ void physics(void)
 	}
 	if (g.player_flag == 1) {
 	    //check for snake2 off board...
-	    if (g.snake2.pos[0][0] < 0 ||
-		    g.snake2.pos[0][0] > g.gridDim-1 ||
-		    g.snake2.pos[0][1] < 0 ||
-		    g.snake2.pos[0][1] > g.gridDim-1) {
-		g.p1_points += 20;
-		g.gameover=1;
+	    g.gameover = snake_hits_edge(g.snake2.pos, g.gridDim);
+	    if (g.gameover == 1) {
 		printf("\n");
 		printf("-----------------------------\n");
 		printf("Snake 2 went off the board!\n");
@@ -1075,11 +1023,8 @@ void physics(void)
 	}
 	if (g.player_flag == 1){
 	    //check for snake2 crossing itself
-	    for (i=1; i<g.snake2.length; i++) {
-		if (g.snake2.pos[i][0] == g.snake2.pos[0][0] &&
-			g.snake2.pos[i][1] == g.snake2.pos[0][1]) {
-		    g.p1_points += 20;
-		    g.gameover=1;
+	    g.gameover = snake_eats_itself(g.snake2.length, g.snake2.pos);
+	    if (g.gameover == 1) {
 		    printf("\n");
 		    printf("-----------------------------\n");
 		    printf("Snake 2 ate itself!\n");
@@ -1088,7 +1033,6 @@ void physics(void)
 		    printf("-----------------------------\n");
 		    return;
 		}
-	    }
 	}
 	//
 	// Check for Colliding Heads
@@ -1122,11 +1066,9 @@ void physics(void)
 	    }
 	}
 	//check for snake2 crossing snake...
-	for (i=0; i<g.snake.length; i++) {
-	    if (g.snake.pos[i][0] == g.snake2.pos[0][0] &&
-		    g.snake.pos[i][1] == g.snake2.pos[0][1]) {
-		g.p1_points += 20;
-		g.gameover=1;
+	if (g.player_flag == 1){
+	    g.gameover = player_crosses_player(g.snake.length, g.snake.pos, g.snake2.pos);
+	    if (g.gameover == 1) {
 		printf("\n");
 		printf("-----------------------------\n");
 		printf("Snake 1 killed Snake 2!\n");
@@ -1136,6 +1078,7 @@ void physics(void)
 		return;
 	    }
 	}
+	    
 	//
 	newpos[0] = headpos[0];
 	newpos[1] = headpos[1];
@@ -1408,13 +1351,13 @@ void render(void)
 	//draw snake...
 #ifdef COLORFUL_SNAKE
 	float c[3]={1.0f,0.0,0.0};
-	float c2[3]={1.0f,0.1,1.0};
+	float c2[3]={0.1f,1.0,0.1};
 	float rgb[3];
 	float rgb2[3];
-	rgb[0] = -0.9 / (float)g.snake.length;
-	rgb[2] = -0.45 / (float)g.snake.length;
-	rgb2[0] = -0.9 / (float)g.snake2.length;
-	rgb2[2] = -0.45 / (float)g.snake2.length;
+	rgb[0] = -0.8 / (float)g.snake.length;
+	rgb[2] = -0.40 / (float)g.snake.length;
+	rgb2[0] = -0.1 / (float)g.snake2.length;
+	rgb2[2] = -0.2 / (float)g.snake2.length;
 	glColor3fv(c);
 	//
 	glBegin(GL_QUADS);
@@ -1461,7 +1404,7 @@ void render(void)
 		if (g.texture_feature == 1) {
 		    if (i == 0) {
 			glEnd();
-			glColor3f(1.0f, 0.1, 1.0);
+			glColor3f(0.0f, 1.0, 0.0);
 			game_Texture(g.silTexture, cent, g.pixel * 5, 
 				g.snake2.direction);
 			i = 1;
@@ -1538,9 +1481,26 @@ void render(void)
 	glEnd();
 	//
 	//
-	show_scores(g.p1_points, g.p2_points,g.xres,g.yres);
+	r.left   = g.xres/2;
+	r.bot    = g.yres-100;
+	r.center = 1;
+	ggprint16(&r, 16, 0x00ffffff, "Hungry Hungry Snake");
+	Rect h;
+	h.left   = 50;
+	h.bot    = 10;
+	h.center = 1;
+	ggprint16(&h, 16, 0x00ffffff, "F1 for help");
+	h.left   = g.xres/2 - 100;
+	h.bot    = 100;
+	h.center = 1;
+	ggprint16(&h, 16, 0xffff0000, "P1 Points: %i", g.p1_points);
+	h.left   = g.xres/2 + 100;
+	h.bot    = 100;
+	h.center = 1;
+	ggprint16(&h, 16, 0xf000f0, "P2 Points: %i", g.p2_points);
+
 	if (g.power_up) {
-	    show_power_up_mode(cent,g.xres,g.yres);
+	    show_power_up(cent);
 	}
 
 	//Texture Feature created by Dominic
