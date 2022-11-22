@@ -715,7 +715,7 @@ void resetGame()
     g.flag = 0;
     g.gameover = 0;
 }
-extern int show_power_up(int[]);
+extern int show_power_up_mode(int[],int,int);
 extern int help_screen(int,int);
 extern int my_name();
 extern int name3();
@@ -1540,7 +1540,7 @@ void render(void)
 	//
 	show_scores(g.p1_points, g.p2_points,g.xres,g.yres);
 	if (g.power_up) {
-	    show_power_up(cent);
+	    show_power_up_mode(cent,g.xres,g.yres);
 	}
 
 	//Texture Feature created by Dominic

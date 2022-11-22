@@ -56,7 +56,7 @@ int help_screen(int xres, int yres)
     glPopMatrix();
     return 0;
 }
-int show_power_up(int cent[])
+int show_power_up_mode(int cent[], int xres,int yres)
 {
     //draw power up
     glColor3f(255, 255, 0);
@@ -66,6 +66,29 @@ int show_power_up(int cent[])
     glVertex2i(cent[0]+3, cent[1]+4);
     glVertex2i(cent[0]+3, cent[1]-3);
     glEnd();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glColor3f(1.0,1.0,0.0);
+    glColor4f(0.0,1.0,0.0,0.5);
+    int w = 20;
+    glBegin(GL_TRIANGLE_STRIP);
+    glVertex2f(0,0);
+    glVertex2f(0 + w, w);
+
+    glVertex2f(0,yres);
+    glVertex2f(0 + w, yres - w);
+
+    glVertex2f(xres, yres);
+    glVertex2f(xres - w, yres - w);
+
+    glVertex2f(xres, 0);
+    glVertex2f(xres - w, w);
+
+    glVertex2f(0,0);
+    glVertex2f(0 + w, w);
+    glEnd();
+    glDisable(GL_BLEND);
+
 
     return 0;
 }
