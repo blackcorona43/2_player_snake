@@ -180,6 +180,7 @@ struct Global {
     int pauseState = 0;
     int p1_points = 0;
     int p2_points = 0;
+    int highscore;
     int count = 0;
     int help = 0;
     unsigned int power_up = 0;
@@ -205,6 +206,7 @@ struct Global {
 	yres = 1800;
 	gridDim = 32;
 	gameover = 0;
+	highscore = 200;
 	winner = 0;
 	nbuttons = 0;
 	showcredits = 0;
@@ -679,6 +681,7 @@ extern int my_name();
 extern int name3();
 extern int show_my_name();
 extern int name5();
+extern int leaderboard(int,int,int);
 int checkKeys(XEvent *e)
 {
     static int shift=0;
@@ -1025,14 +1028,14 @@ void physics(void)
 	    //check for snake2 crossing itself
 	    g.gameover = snake_eats_itself(g.snake2.length, g.snake2.pos);
 	    if (g.gameover == 1) {
-		    printf("\n");
-		    printf("-----------------------------\n");
-		    printf("Snake 2 ate itself!\n");
-		    printf("Snake 1 Wins!\n");
-		    printf("Player 1 has %d points\n", g.p1_points); 
-		    printf("-----------------------------\n");
-		    return;
-		}
+		printf("\n");
+		printf("-----------------------------\n");
+		printf("Snake 2 ate itself!\n");
+		printf("Snake 1 Wins!\n");
+		printf("Player 1 has %d points\n", g.p1_points); 
+		printf("-----------------------------\n");
+		return;
+	    }
 	}
 	//
 	// Check for Colliding Heads
@@ -1078,7 +1081,7 @@ void physics(void)
 		return;
 	    }
 	}
-	    
+
 	//
 	newpos[0] = headpos[0];
 	newpos[1] = headpos[1];
@@ -1240,7 +1243,10 @@ void render(void)
     else if (g.gameover)
     {
 	reset_screen();
-	show_gameover(g.xres, g.yres); 
+	show_gameover(g.xres, g.yres);
+	leaderboard(g.p1_points,g.highscore,g.xres);
+	g.gameover = 1;
+
     }
     else {
 

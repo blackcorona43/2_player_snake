@@ -115,17 +115,39 @@ int show_scores(int p1, int p2, int xres, int yres)
     return 0;
 
 }
-int leaderboard(int your_score, int high_score)
+int leaderboard(int your_score, int high_score,int xres)
 {
-    //output leader board 
+    //output leader board
+    Rect h;
+    h.left   = xres/2;
+    h.bot    = 100;
+    h.center = 1;
+    ggprint16(&h, 16, 0x00ffffff, "----------LeaderBoard----------");
+    ggprint16(&h, 16, 0x00ffffff, "     ");
+    ggprint16(&h, 16, 0x00ffffff, "     ");
     if (your_score > high_score) {
-	printf("New High Score!!\n");
+        //printf("New High Score!!\n");
+        ggprint16(&h, 16, 0x00ffffff, "New High Score!!");
+        ggprint16(&h, 16, 0x00ffffff, "     ");
+        ggprint16(&h, 16, 0x00ffffff, " Points: %i", your_score);
+        ggprint16(&h, 16, 0x00ffffff, "     ");
+        ggprint16(&h, 16, 0x00ffffff, " High Score was: %i", high_score);
     }
-    if (your_score == high_score) {
-	printf("High Score Tied!\n");
+    else if (your_score == high_score) {
+        //printf("High Score Tied!\n");
+        ggprint16(&h, 16, 0x00ffffff, "High Score Tied!");
+        ggprint16(&h, 16, 0x00ffffff, "     ");
+        ggprint16(&h, 16, 0x00ffffff, "Points: %i", your_score);
+        ggprint16(&h, 16, 0x00ffffff, "     ");
+        ggprint16(&h, 16, 0x00ffffff, " High Score is: %i", high_score);
     }
-    if (your_score < high_score) {
-	printf("Better Luck Next Time...\n");
+    else if (your_score < high_score) {
+        //printf("Better Luck Next Time...\n");
+        ggprint16(&h, 16, 0x00ffffff, "Better Luck Next Time...");
+        ggprint16(&h, 16, 0x00ffffff, "     ");
+        ggprint16(&h, 16, 0x00ffffff , "Points: %i", your_score);
+        ggprint16(&h, 16, 0x00ffffff, "     ");
+        ggprint16(&h, 16, 0x00ffffff, " High Score is: %i", high_score);
     }
 
     return 0;
