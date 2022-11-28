@@ -32,17 +32,17 @@ int show_my_name()
 
 class MyImage {
     public:
-        int width, height;
-        unsigned char *data;
-        ~MyImage(); //destructor
-        MyImage(const char *fname);
+	int width, height;
+	unsigned char *data;
+	~MyImage(); //destructor
+	MyImage(const char *fname);
 };
 
 MyImage::~MyImage() { delete [] data; }
 
 MyImage::MyImage(const char *fname) {
     if (strlen(fname) == 0)
-        return;
+	return;
     char name[40];
     strcpy(name, fname);
     int slen = strlen(name);
@@ -54,23 +54,23 @@ MyImage::MyImage(const char *fname) {
     system(ts);
     FILE *fpi = fopen(ppmname, "r");
     if (fpi) {
-        char line[200];
-        fgets(line, 200, fpi);
-        fgets(line, 200, fpi);
-        //skip comments and blank lines
-        while (line[0] == '#' || strlen(line) < 2)
-            fgets(line, 200, fpi);
-        sscanf(line, "%i %i", &width, &height);
-        fgets(line, 200, fpi);
-        //get pixel data
-        int n = width * height * 3;
-        data = new unsigned char[n];
-        for (int i=0; i<n; i++)
-            data[i] = fgetc(fpi);
-        fclose(fpi);
+	char line[200];
+	fgets(line, 200, fpi);
+	fgets(line, 200, fpi);
+	//skip comments and blank lines
+	while (line[0] == '#' || strlen(line) < 2)
+	    fgets(line, 200, fpi);
+	sscanf(line, "%i %i", &width, &height);
+	fgets(line, 200, fpi);
+	//get pixel data
+	int n = width * height * 3;
+	data = new unsigned char[n];
+	for (int i=0; i<n; i++)
+	    data[i] = fgetc(fpi);
+	fclose(fpi);
     } else {
-        printf("ERROR opening image: %s\n", ppmname);
-        exit(0);
+	printf("ERROR opening image: %s\n", ppmname);
+	exit(0);
     }
     unlink(ppmname);
 }
@@ -80,24 +80,24 @@ MyImage imgg[1] = {"images/allsnake.jpg"};
 
 class Texture {
     public:
-        MyImage *backImage;
-        GLuint backTexture;
-        float xc[2];
-        float yc[2];
+	MyImage *backImage;
+	GLuint backTexture;
+	float xc[2];
+	float yc[2];
 };
 
 class Globe {
     public:
-        int xres, yres;
-        int movement;
-        int movement2;
-        Texture tex;
-        Globe() {
-            xres = 2400;
-            yres = 1800;
-            movement = 1;
-            movement2 = 1;
-        }
+	int xres, yres;
+	int movement;
+	int movement2;
+	Texture tex;
+	Globe() {
+	    xres = 2400;
+	    yres = 1800;
+	    movement = 1;
+	    movement2 = 1;
+	}
 } gg;
 
 //=================================
@@ -112,24 +112,24 @@ const int MAX_PARTICLES = 10000;
 
 class Box {
     public:
-        float w;
-        float dir;
-        float vel[2];
-        float pos[2];
-        Box() {
-            w = 0.0f; //makes box go straight down
-            dir = 25.0f;
-            pos[0] = gg.xres / 2.0f;
-            pos[1] = gg.yres / 2.0f;
-            vel[0] = vel[1] = 0.0;
-        }
-        Box(float wid, float d, float p0, float p1) {
-            w = wid;
-            dir = d;
-            pos[0] = p0;
-            pos[1] = p1;
-            vel[0] = vel[1] = 0.0;
-        }
+	float w;
+	float dir;
+	float vel[2];
+	float pos[2];
+	Box() {
+	    w = 0.0f; //makes box go straight down
+	    dir = 25.0f;
+	    pos[0] = gg.xres / 2.0f;
+	    pos[1] = gg.yres / 2.0f;
+	    vel[0] = vel[1] = 0.0;
+	}
+	Box(float wid, float d, float p0, float p1) {
+	    w = wid;
+	    dir = d;
+	    pos[0] = p0;
+	    pos[1] = p1;
+	    vel[0] = vel[1] = 0.0;
+	}
 } box, particles[MAX_PARTICLES], particles2[MAX_PARTICLES]; 
 
 int n = 0;
@@ -137,8 +137,8 @@ int n = 0;
 void make_particles(int x, int y)
 {
     if (n >= MAX_PARTICLES)
-        return;
-    
+	return;
+
     particles[n].w = 25.0; //size of particles
     particles[n].pos[0] = x;
     particles[n].pos[1] = y;
@@ -149,8 +149,8 @@ void make_particles(int x, int y)
 void make_particles2(int x, int y)
 {
     if (n >= MAX_PARTICLES)
-        return;
-    
+	return;
+
     particles2[n].w = 25.0; //size of particles
     particles2[n].pos[0] = x;
     particles2[n].pos[1] = y;
@@ -162,40 +162,37 @@ void physicsFeat()
 {
     //particles1
     if (gg.movement < 500)
-        gg.movement += 40; //how far apart the squares are
+	gg.movement += 40; //how far apart the squares are
     if (gg.movement >= 500)
-        gg.movement -= 500; //how wide the group of squares are
+	gg.movement -= 500; //how wide the group of squares are
 
     make_particles(box.pos[0]+gg.movement, box.pos[1]*2);
 
     for (int i=0; i<n; i++)
     {
-        particles[i].vel[1] -= 0.10; //speed of squares
-        particles[i].pos[0] += particles[i].vel[0];
-        particles[i].pos[1] += particles[i].vel[1];
+	particles[i].vel[1] -= 0.10; //speed of squares
+	particles[i].pos[0] += particles[i].vel[0];
+	particles[i].pos[1] += particles[i].vel[1];
 
-        if (particles[i].pos[1] < 0.0)
-            particles[i] = particles[--n];
+	if (particles[i].pos[1] < 0.0)
+	    particles[i] = particles[--n];
     }
 
     //particles2
     /*if (gg.movement2 < -10)
-      gg.movement2 += 40; //how far apart the squares are
+      	gg.movement2 += 40; //how far apart the squares are
       if (gg.movement2 >= -10)
-      gg.movement2 -= 500; //how wide the group of squares are
-    //gg.movement -= 1000;
+      	gg.movement2 -= 500; //how wide the group of squares are
 
-    make_particles(box.pos[0]+gg.movement2, box.pos[1]*2);
-
-    for (int i=0; i<n; i++)
-    {
-    particles2[i].vel[1] -= 0.10; //speed of squares
-    particles2[i].pos[0] += particles2[i].vel[0];
-    particles2[i].pos[1] += particles2[i].vel[1];
-
-    if (particles2[i].pos[1] < 0.0)
-    particles2[i] = particles2[--n];
-    }*/
+      make_particles(box.pos[0]+gg.movement2, box.pos[1]*2);
+      for (int i=0; i<n; i++)
+      {		   
+      	particles2[i].vel[1] -= 0.10; //speed of squares
+	particles2[i].pos[0] += particles2[i].vel[0];	
+      	particles2[i].pos[1] += particles2[i].vel[1];	
+     	if (particles2[i].pos[1] < 0.0)	
+		particles2[i] = particles2[--n];
+      }*/
 
 }
 
@@ -203,20 +200,20 @@ void physicsFeat2()
 {
     //particles2
     if (gg.movement2 < -10)
-      gg.movement2 += 40; //how far apart the squares are
+	gg.movement2 += 40; //how far apart the squares are
     if (gg.movement2 >= -10)
-      gg.movement2 -= 500; //how wide the group of squares are
+	gg.movement2 -= 500; //how wide the group of squares are
 
     make_particles2(box.pos[0]+gg.movement2, box.pos[1]*2);
 
     for (int i=0; i<n; i++)
     {
-   	particles2[i].vel[1] -= 0.10; //speed of squares
-    	particles2[i].pos[0] += particles2[i].vel[0];
-    	particles2[i].pos[1] += particles2[i].vel[1];
+	particles2[i].vel[1] -= 0.10; //speed of squares
+	particles2[i].pos[0] += particles2[i].vel[0];
+	particles2[i].pos[1] += particles2[i].vel[1];
 
-    if (particles2[i].pos[1] < 0.0)
-    	particles2[i] = particles2[--n];
+	if (particles2[i].pos[1] < 0.0)
+	    particles2[i] = particles2[--n];
     }
 }
 
@@ -224,28 +221,6 @@ void makeFeat()
 {
     //Draw all particle
     /*for (int i=0; i<n; i++)
-    {
-        glPushMatrix();
-        glColor3ub(150, 160, 255);
-        glTranslatef(particles[i].pos[0], particles[i].pos[1], 0.0f);
-        glBegin(GL_QUADS);
-        glVertex2f(-particles[i].w, -particles[i].w);
-        glVertex2f(-particles[i].w,  particles[i].w);
-        glVertex2f( particles[i].w,  particles[i].w);
-        glVertex2f( particles[i].w, -particles[i].w);
-        glEnd();
-        glTranslatef(particles2[i].pos[0], particles2[i].pos[1], 0.0f);
-        glBegin(GL_QUADS);
-        glVertex2f(-particles2[i].w, -particles2[i].w);
-        glVertex2f(-particles2[i].w,  particles2[i].w);
-        glVertex2f( particles2[i].w,  particles2[i].w);
-        glVertex2f( particles2[i].w, -particles2[i].w);
-        glEnd();
-        glPopMatrix();
-    }*/
-
-    //Draw all particle2
-    for (int i=0; i<n; i++)
       {
       glPushMatrix();
       glColor3ub(150, 160, 255);
@@ -256,17 +231,6 @@ void makeFeat()
       glVertex2f( particles[i].w,  particles[i].w);
       glVertex2f( particles[i].w, -particles[i].w);
       glEnd();
-      glPopMatrix();
-      }
-}
-
-void makeFeat2()
-{
-    //Draw all particle2
-    for (int i=0; i<n; i++)
-      {
-      glPushMatrix();
-      glColor3ub(150, 160, 255);
       glTranslatef(particles2[i].pos[0], particles2[i].pos[1], 0.0f);
       glBegin(GL_QUADS);
       glVertex2f(-particles2[i].w, -particles2[i].w);
@@ -275,7 +239,40 @@ void makeFeat2()
       glVertex2f( particles2[i].w, -particles2[i].w);
       glEnd();
       glPopMatrix();
-      }
+      }*/
+
+    //Draw all particle2
+    for (int i=0; i<n; i++)
+    {
+	glPushMatrix();
+	glColor3ub(150, 160, 255);
+	glTranslatef(particles[i].pos[0], particles[i].pos[1], 0.0f);
+	glBegin(GL_QUADS);
+	glVertex2f(-particles[i].w, -particles[i].w);
+	glVertex2f(-particles[i].w,  particles[i].w);
+	glVertex2f( particles[i].w,  particles[i].w);
+	glVertex2f( particles[i].w, -particles[i].w);
+	glEnd();
+	glPopMatrix();
+    }
+}
+
+void makeFeat2()
+{
+    //Draw all particle2
+    for (int i=0; i<n; i++)
+    {
+	glPushMatrix();
+	glColor3ub(150, 160, 255);
+	glTranslatef(particles2[i].pos[0], particles2[i].pos[1], 0.0f);
+	glBegin(GL_QUADS);
+	glVertex2f(-particles2[i].w, -particles2[i].w);
+	glVertex2f(-particles2[i].w,  particles2[i].w);
+	glVertex2f( particles2[i].w,  particles2[i].w);
+	glVertex2f( particles2[i].w, -particles2[i].w);
+	glEnd();
+	glPopMatrix();
+    }
 }
 
 unsigned int manage_state_st(unsigned int s)
@@ -301,7 +298,7 @@ void show_credits(int xres, int yres)
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, 3, wid, hei, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, gg.tex.backImage->data);
+	    GL_RGB, GL_UNSIGNED_BYTE, gg.tex.backImage->data);
     gg.tex.xc[0] = 0.0;
     gg.tex.xc[1] = 1.0;
     gg.tex.yc[0] = 0.0;
