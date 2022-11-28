@@ -139,7 +139,7 @@ void make_particles(int x, int y)
     if (n >= MAX_PARTICLES)
 	return;
 
-    particles[n].w = 25.0; //size of particles
+    particles[n].w = 15.0; //size of particles
     particles[n].pos[0] = x;
     particles[n].pos[1] = y;
     particles[n].vel[0] = particles[n].vel[1] = 0.0;
@@ -151,7 +151,7 @@ void make_particles2(int x, int y)
     if (n >= MAX_PARTICLES)
 	return;
 
-    particles2[n].w = 25.0; //size of particles
+    particles2[n].w = 15.0; //size of particles
     particles2[n].pos[0] = x;
     particles2[n].pos[1] = y;
     particles2[n].vel[0] = particles2[n].vel[1] = 0.0;
@@ -168,9 +168,8 @@ void physicsFeat()
 
     make_particles(box.pos[0]+gg.movement, box.pos[1]*2);
 
-    for (int i=0; i<n; i++)
-    {
-	particles[i].vel[1] -= 0.10; //speed of squares
+    for (int i=0; i<n; i++) {
+	particles[i].vel[1] -= 0.07; //speed of squares
 	particles[i].pos[0] += particles[i].vel[0];
 	particles[i].pos[1] += particles[i].vel[1];
 
@@ -180,18 +179,18 @@ void physicsFeat()
 
     //particles2
     /*if (gg.movement2 < -10)
-      	gg.movement2 += 40; //how far apart the squares are
+      gg.movement2 += 40; //how far apart the squares are
       if (gg.movement2 >= -10)
-      	gg.movement2 -= 500; //how wide the group of squares are
+      gg.movement2 -= 500; //how wide the group of squares are
 
       make_particles(box.pos[0]+gg.movement2, box.pos[1]*2);
       for (int i=0; i<n; i++)
       {		   
-      	particles2[i].vel[1] -= 0.10; //speed of squares
-	particles2[i].pos[0] += particles2[i].vel[0];	
-      	particles2[i].pos[1] += particles2[i].vel[1];	
-     	if (particles2[i].pos[1] < 0.0)	
-		particles2[i] = particles2[--n];
+      particles2[i].vel[1] -= 0.10; //speed of squares
+      particles2[i].pos[0] += particles2[i].vel[0];	
+      particles2[i].pos[1] += particles2[i].vel[1];	
+      if (particles2[i].pos[1] < 0.0)	
+      particles2[i] = particles2[--n];
       }*/
 
 }
@@ -206,9 +205,8 @@ void physicsFeat2()
 
     make_particles2(box.pos[0]+gg.movement2, box.pos[1]*2);
 
-    for (int i=0; i<n; i++)
-    {
-	particles2[i].vel[1] -= 0.10; //speed of squares
+    for (int i=0; i<n; i++) {
+	particles2[i].vel[1] -= 0.07; //speed of squares
 	particles2[i].pos[0] += particles2[i].vel[0];
 	particles2[i].pos[1] += particles2[i].vel[1];
 
@@ -242,8 +240,7 @@ void makeFeat()
       }*/
 
     //Draw all particle2
-    for (int i=0; i<n; i++)
-    {
+    for (int i=0; i<n; i++) {
 	glPushMatrix();
 	glColor3ub(150, 160, 255);
 	glTranslatef(particles[i].pos[0], particles[i].pos[1], 0.0f);
@@ -260,8 +257,7 @@ void makeFeat()
 void makeFeat2()
 {
     //Draw all particle2
-    for (int i=0; i<n; i++)
-    {
+    for (int i=0; i<n; i++) {
 	glPushMatrix();
 	glColor3ub(150, 160, 255);
 	glTranslatef(particles2[i].pos[0], particles2[i].pos[1], 0.0f);
@@ -371,12 +367,45 @@ void show_feature_st(int xres, int yres)
     glDisable(GL_BLEND);
 
 
-    physicsFeat();
+    int done = 0;
+    srand(time(NULL));
+    while (!done) {
+	int num = (rand() % 2) + 1;
+	if (num == 1) {
+	    for (int i = 0; i<100; i++) {
+		if (i > 0 && i < 98) {
+		    physicsFeat();
+		    usleep(200);
+		} else if (i == 99) {
+		    done = 1;
+		    break;
+		}
+	    }
+	} else if (num == 2) {
+	    for (int i = 0; i<100; i++) {
+		if (i > 0 && i < 98) {
+		    physicsFeat2();
+		    usleep(200);
+		} else if (i == 99) {
+		    done = 1;
+		    break;
+		}
+	    }
+	} else {
+	    done = 1;
+	}
+    }
     makeFeat();
     usleep(200);
-
-    physicsFeat2();
     makeFeat2();
     usleep(200);
+
+    /*physicsFeat();
+      makeFeat();
+      usleep(200);
+
+      physicsFeat2();
+      makeFeat2();
+      usleep(200);*/
 
 }
