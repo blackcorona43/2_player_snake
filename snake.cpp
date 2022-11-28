@@ -770,6 +770,9 @@ int checkKeys(XEvent *e)
 	    break;
 	case XK_n:
 	    g.st_feature = manage_state_st(g.st_feature);
+	    int y = g.yres;
+	    int x = g.xres/2;
+	    make_particles(x,y);
 	    break;    
     }
     return 0;
