@@ -682,6 +682,10 @@ extern int name3();
 extern int show_my_name();
 extern int name5();
 extern int leaderboard(int,int,int);
+
+	    int yfeat = g.yres;
+	    int xfeat = g.xres/2;
+
 int checkKeys(XEvent *e)
 {
     static int shift=0;
@@ -770,10 +774,34 @@ int checkKeys(XEvent *e)
 	    break;
 	case XK_n:
 	    g.st_feature = manage_state_st(g.st_feature);
-	    int y = g.yres;
-	    int x = g.xres/2;
-	    make_particles(x,y);
-	    make_particles2(x,y);
+	    int done = 0;
+	    srand(time(NULL));
+	    while (!done) {
+	    int num = (rand() % 2) + 1;
+		if (num == 1) {
+		    for (int i = 0; i<100; i++) {
+			if (i > 0 && i < 98) {
+			    make_particles(xfeat,yfeat);
+			} else if (i == 99) {
+			    done = 1;
+			    break;
+			}
+		    }
+		}
+		else if (num == 2) {
+		    for (int i = 0; i<100; i++) {
+			if (i > 0 && i < 98) {
+			    make_particles2(xfeat,yfeat);
+			} else if (i == 99) {
+			    done = 1;
+			    break;
+			}
+		    }
+		}
+		else {
+		    done = 1;
+		}
+	    }
 	    break;    
     }
     return 0;
