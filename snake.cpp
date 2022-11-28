@@ -773,6 +773,7 @@ int checkKeys(XEvent *e)
 	    int y = g.yres;
 	    int x = g.xres/2;
 	    make_particles(x,y);
+	    make_particles2(x,y);
 	    break;    
     }
     return 0;
