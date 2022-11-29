@@ -158,22 +158,7 @@ unsigned char *buildAlphaData(unsigned char* pdata, int height, int width)
 	*(ptr+0) = a;
 	*(ptr+1) = b;
 	*(ptr+2) = c;
-	//-----------------------------------------------
-	//get largest color component...
-	//*(ptr+3) = (unsigned char)((
-	//      (int)*(ptr+0) +
-	//      (int)*(ptr+1) +
-	//      (int)*(ptr+2)) / 3);
-	//d = a;
-	//if (b >= a && b >= c) d = b;
-	//if (c >= a && c >= b) d = c;
-	//*(ptr+3) = d;
-	//-----------------------------------------------
-	//this code optimizes the commented code above.
-	//code contributed by student: Chris Smith
-	//
 	*(ptr+3) = (a|b|c);
-	//-----------------------------------------------
 	ptr += 4;
 	data += 3;
     }
