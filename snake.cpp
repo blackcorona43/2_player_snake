@@ -902,7 +902,7 @@ int checkMouse(XEvent *e)
                 g.done = 1;
                 return 1;
             case 8:
-                return 1;
+                break;
             }
 		}
 	    }
