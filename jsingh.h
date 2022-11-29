@@ -1,6 +1,9 @@
 // Jasdeep Singh - header file
 // include header guard
 
-extern void showIntro(int, int);
-extern void featureJas(int, int);
-
+void showIntro();
+void setGlobalJ(int, int);
+void gameSettings();
+void displayIntroText();
+//extern void createButtons(Button *, int *);
+//extern void drawButtons(Button *);

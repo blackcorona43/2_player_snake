@@ -86,7 +86,7 @@ typedef struct t_rat {
 //
 //
 //
-#define MAXBUTTONS 4
+#define MAXBUTTONS 10
 typedef struct t_button {
     Rect r;
     char text[32];
@@ -172,7 +172,8 @@ struct Global {
     int winner;
     int done = 0;
     unsigned int showcredits;
-    unsigned int featJ = 0;
+    unsigned int featJ = 1;
+    unsigned int settings = 0;
     unsigned int st_feature;
     int size = 16;
     int pixel = 16;
@@ -310,6 +311,9 @@ void init();
 void initSounds(void);
 void physics(void);
 void render(void);
+extern void createButtons(Button *, int *);
+extern void drawButtons(Button *);
+extern void gameSettings(Button *);
 void getGridCenter(const int i, const int j, int cent[2]);
 #ifdef USE_OPENAL_SOUND
 void initSound();
@@ -620,7 +624,7 @@ void init()
     g.button[g.nbuttons].r.width = 140;
     g.button[g.nbuttons].r.height = 60;
     g.button[g.nbuttons].r.left = 20;
-    g.button[g.nbuttons].r.bot = 320;
+    g.button[g.nbuttons].r.bot = 300;
     g.button[g.nbuttons].r.right =
 	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
     g.button[g.nbuttons].r.top =
@@ -633,8 +637,8 @@ void init()
     g.button[g.nbuttons].down = 0;
     g.button[g.nbuttons].click = 0;
     g.button[g.nbuttons].color[0] = 0.4f;
-    g.button[g.nbuttons].color[1] = 0.4f;
-    g.button[g.nbuttons].color[2] = 0.7f;
+    g.button[g.nbuttons].color[1] = 0.2f;
+    g.button[g.nbuttons].color[2] = 0.1f;
     g.button[g.nbuttons].dcolor[0] = g.button[g.nbuttons].color[0] * 0.5f;
     g.button[g.nbuttons].dcolor[1] = g.button[g.nbuttons].color[1] * 0.5f;
     g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
@@ -643,7 +647,7 @@ void init()
     g.button[g.nbuttons].r.width = 140;
     g.button[g.nbuttons].r.height = 60;
     g.button[g.nbuttons].r.left = 20;
-    g.button[g.nbuttons].r.bot = 160;
+    g.button[g.nbuttons].r.bot = 200;
     g.button[g.nbuttons].r.right =
 	g.button[g.nbuttons].r.left + g.button[g.nbuttons].r.width;
     g.button[g.nbuttons].r.top = g.button[g.nbuttons].r.bot +
@@ -655,14 +659,17 @@ void init()
     strcpy(g.button[g.nbuttons].text, " Esc to Quit");
     g.button[g.nbuttons].down = 0;
     g.button[g.nbuttons].click = 0;
-    g.button[g.nbuttons].color[0] = 0.3f;
-    g.button[g.nbuttons].color[1] = 0.3f;
-    g.button[g.nbuttons].color[2] = 0.6f;
+    g.button[g.nbuttons].color[0] = 0.4f;
+    g.button[g.nbuttons].color[1] = 0.2f;
+    g.button[g.nbuttons].color[2] = 0.1f;
     g.button[g.nbuttons].dcolor[0] = g.button[g.nbuttons].color[0] * 0.5f;
     g.button[g.nbuttons].dcolor[1] = g.button[g.nbuttons].color[1] * 0.5f;
     g.button[g.nbuttons].dcolor[2] = g.button[g.nbuttons].color[2] * 0.5f;
     g.button[g.nbuttons].text_color = 0x00ffffff;
     g.nbuttons++;
+
+    setGlobalJ(g.xres, g.yres);
+    createButtons(&(g.button[g.nbuttons]), &g.nbuttons);
 }
 
 void resetGame()
@@ -731,9 +738,7 @@ int checkKeys(XEvent *e)
 	    printf("Length Power Up testing\n");
 	    g.power_up ^= 1;
 	    break;
-	case XK_j: // Jasdeep feature mode
-	    printf("Feature mode to test buttons (Jasdeep)\n");
-	    g.featJ ^= 1;
+	case XK_j: // previously Jasdeep's feature mode
 	    break;
 	case XK_a:
 	    g.snake.direction = DIRECTION_LEFT;
@@ -847,13 +852,58 @@ int checkMouse(XEvent *e)
 		if (lbutton) {
 		    switch (i) {
 			case 0:
-			    resetGame();
-			    break;
+                if (g.featJ)
+                    break;
+                else if (g.player_flag) { 
+                    resetGame();
+                    g.player_flag = two_player(g.player_flag);
+                    break;
+                } else if (g.flag) {
+                    resetGame();
+                    g.flag = computer_snake(g.flag);
+                    break;
+                } else {
+                    resetGame();
+                    break;
+                }
 			case 1:
-			    printf("Quit was clicked!\n");
-			    g.done = 1;
-			    return 1;
-		    }
+                if (g.featJ)
+                    break;
+                else {
+                    printf("Quit was clicked!\n");
+                    g.done = 1;
+                    return 1;
+                }
+            case 2:
+                g.featJ = 1;
+                resetGame();
+                break;
+            case 3:
+                g.featJ = 0;
+                resetGame();
+                printf("Slithering SOLO\n");
+                break;
+            case 4:
+                g.featJ = 0;
+                resetGame();
+                printf("Starting TWO PLAYER mode\n");
+                g.player_flag = two_player(g.player_flag);
+                break;
+            case 5:
+                g.featJ = 0;
+                resetGame();
+                printf("Playing against COMPUTER\n");
+                g.flag = computer_snake(g.flag);
+                break;
+            case 6:
+                g.settings = 1;
+                break;
+            case 7:
+                g.done = 1;
+                return 1;
+            case 8:
+                return 1;
+            }
 		}
 	    }
 	}
@@ -894,7 +944,9 @@ void physics(void)
     int i;
     if (g.gameover)
 	return;
-    if (g.pauseState) {
+    if (g.featJ == 1) {
+    }
+    else if (g.pauseState) {
 
     }
     else {
@@ -1260,24 +1312,57 @@ void reset_screen()
     glOrtho(0, g.xres, 0, g.yres, -1, 1);
 }
 
+void setBackground()
+{
+	//screen background
+	glColor3f(0.5f, 0.5f, 0.5f);
+	glBindTexture(GL_TEXTURE_2D, g.marbleTexture);
+	glBegin(GL_QUADS);
+	glTexCoord2f(0.0f, 0.0f); glVertex2i(0,      0);
+	glTexCoord2f(0.0f, 1.0f); glVertex2i(0,      g.yres);
+	glTexCoord2f(1.0f, 1.0f); glVertex2i(g.xres, g.yres);
+	glTexCoord2f(1.0f, 0.0f); glVertex2i(g.xres, 0);
+	glEnd();
+	glBindTexture(GL_TEXTURE_2D, 0);
+	//
+}
+
 void render(void)
 { 
-    if(g.showcredits == 1)
-    {
-	g.pauseState = 1;
-	show_credits(g.xres, g.yres);
+	if (g.featJ == 1) {
+        reset_screen();
+        showIntro();
+        setBackground();
+        drawButtons(g.button);
+        displayIntroText();
+        if (g.help)
+        {
+            help_screen(g.xres, g.yres);            
+        }
+        if (g.settings) {
+            reset_screen();
+            setBackground();
+            gameSettings(g.button);
+            if (g.button[8].down)
+                g.featJ = 1;
+        }
     }
     else if (g.help)
     {
-	g.pauseState = 1;
-	help_screen(g.xres, g.yres);            
+        g.pauseState = 1;
+        help_screen(g.xres, g.yres);            
+    }
+    else if(g.showcredits == 1)
+    {
+        g.pauseState = 1;
+        show_credits(g.xres, g.yres);
     }
     else if (g.gameover)
     {
-	reset_screen();
-	show_gameover(g.xres, g.yres);
-	leaderboard(g.p1_points,g.highscore,g.xres);
-	g.gameover = 1;
+        reset_screen();
+        show_gameover(g.xres, g.yres);
+        leaderboard(g.p1_points,g.highscore,g.xres);
+        g.gameover = 1;
 
     }
     else {
@@ -1318,7 +1403,7 @@ void render(void)
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//
 	//draw all buttons
-	for (i=0; i<g.nbuttons; i++) {
+	for (i=0; i<3; i++) {
 	    if (g.button[i].over) {
 		int w=2;
 		glColor3f(1.0f, 1.0f, 0.0f);
@@ -1573,11 +1658,6 @@ void render(void)
 
 	if (g.flag == 1)
 	    ruben_mode(g.xres, g.yres);
-	if (g.featJ == 1) {
-	    show_pause_screen(g.xres, g.yres);
-	    featureJas(g.xres, g.yres);
-	}
-
 	if (g.pauseState) {
 	    show_pause_screen(g.xres, g.yres);
 	}
